@@ -11,7 +11,7 @@ const knexConfig = {
   development: {
     client: "pg", // Use 'pg' for PostgreSQL
     connection: {
-      host: process.env.PG_HOST, // Usually localhost for development
+      host: process.env.SERVER_HOST, // Usually localhost for development
       database: process.env.PG_DATABASE, // Your development database name
       user: process.env.PG_USER, // Your development database user
       password: process.env.PG_PASSWORD, // Your development database password
