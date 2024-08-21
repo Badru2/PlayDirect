@@ -1,6 +1,6 @@
 // Import the dotenv package and configure it to load environment variables
 import dotenv from "dotenv";
-dotenv.config();
+dotenv.config({ path: "../.env" });
 
 // Update with your config settings.
 

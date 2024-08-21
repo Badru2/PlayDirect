@@ -4,10 +4,11 @@ import bcrypt from "bcryptjs";
 import express from "express";
 import bodyParser from "body-parser";
 import jwt from "jsonwebtoken";
+import cors from "cors";
 
 const app = express();
 const { Pool } = pkg;
-dotenv.config();
+dotenv.config({ path: "../.env" });
 
 const pool = new Pool({
   host: process.env.SERVER_HOST,
@@ -18,6 +19,13 @@ const pool = new Pool({
 });
 
 app.use(bodyParser.json());
+app.use(express.json());
+app.use(
+  cors({
+    origin: `http://${process.env.SERVER_HOST}:${process.env.CLIENT_PORT}`,
+    credentials: true,
+  })
+);
 
 app.post("/api/register", async (req, res) => {
   const { username, email, password } = req.body;
@@ -92,6 +100,35 @@ const authenticateToken = (req, res, next) => {
   } catch (error) {
     res.status(400).json({ error: "invalid token" });
   }
+};
+
+const verifyTokenAndRole = (allowedRoles) => {
+  return async (req, res, next) => {
+    try {
+      const token = req.header("Authorization").split(" ")[1];
+      const decode = jwt.verify(token, process.env.JWT_SECRET);
+      req.user = decode;
+
+      const user = await pool.query("SELECT role FROM users WHERE id = $1", [
+        req.user.id,
+      ]);
+
+      if (user.rows.length === 0) {
+        return res.status(401).json({ error: "User not found" });
+      }
+
+      const currentRole = user.rows[0].role;
+
+      if (!allowedRoles.includes(currentRole)) {
+        return res.status(403).json({ error: "Access denied: Role mismacth" });
+      }
+
+      next();
+    } catch (error) {
+      console.error("Token verification error: ", error.message);
+      res.status(401).json({ error: "Unauthorized access" });
+    }
+  };
 };
 
 app.get("/protected", authenticateToken, (req, res) => {
