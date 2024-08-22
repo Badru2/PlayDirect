@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 const Register = () => {
   const [username, setUsername] = useState("");
@@ -29,38 +29,53 @@ const Register = () => {
     }
   };
   return (
-    <div>
-      <h2>Register</h2>
-      <form onSubmit={handleSubmit}>
+    <div className="bg-white p-5 w-1/4 shadow-md mx-auto">
+      <h2 className="text-2xl text-center font-bold">Register</h2>
+      <form onSubmit={handleSubmit} className="space-y-3">
         <div>
-          <label>Username:</label>
+          <label className="font-bold">Username:</label>
           <input
             type="text"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             required
+            className="bg-white w-full border"
           />
         </div>
         <div>
-          <label>Email:</label>
+          <label className="font-bold">Email:</label>
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            className="bg-white w-full border"
           />
         </div>
         <div>
-          <label>Password:</label>
+          <label className="font-bold">Password:</label>
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            className="bg-white w-full border"
           />
         </div>
-        <button type="submit">Register</button>
+        <button
+          type="submit"
+          className="bg-blue-500 text-white px-3 py-1 w-full"
+        >
+          Register
+        </button>
       </form>
+
+      <div className="text-center">
+        Already have an account? <br />
+        <span className="text-blue-500 font-bold">
+          <Link to="/login">Sign In.</Link>
+        </span>
+      </div>
     </div>
   );
 };
