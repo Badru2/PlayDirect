@@ -10,6 +10,8 @@ export async function up(knex) {
     table.string("image");
     table.integer("category_id").unsigned();
     table.foreign("category_id").references("id").inTable("products_category");
+    table.integer("genre_id").unsigned();
+    table.foreign("genre_id").references("id").inTable("products_genre");
     table.integer("user_id").unsigned(); // id of the admin who created the product
     table.foreign("user_id").references("id").inTable("users");
     table.text("description");

@@ -13,17 +13,15 @@ const SuperAdminDashboard = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post("/api/create/admin", {
-        username,
-        email,
-        password,
-      });
-      const data = await response.json();
-      if (response.ok) {
-        console.log(data);
-      } else {
-        console.error(data.error);
-      }
+      const response = await axios.post(
+        "http://localhost:8080/api/create/admin",
+        {
+          username,
+          email,
+          password,
+        }
+      );
+      console.log("Admin created:", response.data);
 
       setUsername("");
       setEmail("");

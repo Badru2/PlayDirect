@@ -20,7 +20,7 @@ const Register = () => {
       if (response.ok) {
         console.log(data);
         // Redirect after successful registration
-        window.location.href = "/dashboard";
+        window.location.href = "/";
       } else {
         console.error(data.error);
       }

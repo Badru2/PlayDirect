@@ -5,10 +5,22 @@ import express from "express";
 import bodyParser from "body-parser";
 import jwt from "jsonwebtoken";
 import cors from "cors";
+import fileUpload from "express-fileupload";
+import path from "path";
+
+dotenv.config({ path: "../.env" });
+
+// Ensure required environment variables are present
+if (
+  !process.env.SERVER_HOST ||
+  !process.env.PG_DATABASE ||
+  !process.env.JWT_SECRET
+) {
+  throw new Error("Missing required environment variables");
+}
 
 const app = express();
 const { Pool } = pkg;
-dotenv.config({ path: "../.env" });
 
 const pool = new Pool({
   host: process.env.SERVER_HOST,
@@ -18,6 +30,7 @@ const pool = new Pool({
   port: process.env.PG_PORT,
 });
 
+// Middleware
 app.use(bodyParser.json());
 app.use(express.json());
 app.use(
@@ -26,11 +39,58 @@ app.use(
     credentials: true,
   })
 );
+app.use(
+  fileUpload({
+    createParentPath: true, // Ensure upload directories are created automatically
+    limits: { fileSize: 5 * 1024 * 1024 }, // Limit file size to 5MB
+  })
+);
 
+// Middleware for authentication
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.header("Authorization");
+  const token = authHeader && authHeader.split(" ")[1];
+
+  if (!token) return res.status(401).json({ error: "Access denied" });
+
+  try {
+    const verified = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = verified;
+    next();
+  } catch (error) {
+    res.status(400).json({ error: "Invalid token" });
+  }
+};
+
+const verifyTokenAndRole = (allowedRoles) => async (req, res, next) => {
+  try {
+    const token = req.header("Authorization").split(" ")[1];
+    const decode = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decode;
+
+    const user = await pool.query("SELECT role FROM users WHERE id = $1", [
+      req.user.id,
+    ]);
+
+    if (user.rows.length === 0) {
+      return res.status(401).json({ error: "User not found" });
+    }
+
+    if (!allowedRoles.includes(user.rows[0].role)) {
+      return res.status(403).json({ error: "Access denied: Role mismatch" });
+    }
+
+    next();
+  } catch (error) {
+    console.error("Token verification error: ", error.message);
+    res.status(401).json({ error: "Unauthorized access" });
+  }
+};
+
+// Routes
 app.post("/api/register", async (req, res) => {
   const { username, email, password } = req.body;
 
-  // Check if any value is undefined
   if (!username || !email || !password) {
     return res.status(400).json({ error: "All fields are required" });
   }
@@ -172,22 +232,33 @@ app.post("/api/create/product-category", async (req, res) => {
   }
 });
 
-app.post("/api/create/product", async (req, res) => {
-  const { name, price, category_id, user_id, description } = req.body;
+app.get("/api/get/product-category", async (req, res) => {
+  try {
+    const categories = await pool.query(
+      "SELECT * FROM products_category ORDER BY name ASC"
+    );
+    res.json(categories.rows);
+  } catch (error) {
+    console.error(error);
+  }
+});
 
-  if (!name || !price || !category_id || !description) {
+app.post("/api/create/product-genre", async (req, res) => {
+  const { name } = req.body;
+
+  if (!name) {
     return res.status(400).json({ error: "All fields are required" });
   }
 
   try {
-    const newProduct = await pool.query(
-      "INSERT INTO products (name, price, category_id, user_id, description) VALUES ($1, $2, $3, $4, $5) RETURNING *",
-      [name, price, category_id, user_id, description]
+    const newGenre = await pool.query(
+      "INSERT INTO products_genre (name) VALUES ($1) RETURNING *",
+      [name]
     );
 
     res.status(201).json({
-      message: "Product created successfully",
-      product: newProduct.rows[0],
+      message: "Product genre created successfully",
+      genre: newGenre.rows[0],
     });
   } catch (error) {
     console.error(error.message);
@@ -195,53 +266,69 @@ app.post("/api/create/product", async (req, res) => {
   }
 });
 
-const authenticateToken = (req, res, next) => {
-  const token = req.header("Authorization").split(" ")[1];
+app.get("/api/get/product-genre", async (req, res) => {
+  try {
+    const genres = await pool.query(
+      "SELECT * FROM products_genre ORDER BY name ASC"
+    );
+    res.json(genres.rows);
+  } catch (error) {
+    console.error(error);
+  }
+});
 
-  if (!token) return res.status(401).json({ error: "Access denied" });
+app.post("/api/create/product", async (req, res) => {
+  const { name, price, category_id, genre_id, user_id, description } = req.body;
+
+  if (!name || !price || !category_id || !description) {
+    return res.status(400).json({ error: "All fields are required" });
+  }
+
+  // Handle image upload
+  let imagePath = null;
+  if (req.files && req.files.image) {
+    const imageFile = req.files.image;
+    imagePath = path.join(
+      "uploads/products-image",
+      Date.now() + path.extname(imageFile.name)
+    );
+    try {
+      await imageFile.mv(imagePath);
+    } catch (error) {
+      console.error("File upload error:", error.message);
+      return res.status(500).json({ error: "File upload failed" });
+    }
+  }
 
   try {
-    const verified = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = verified;
-    next();
+    const newProduct = await pool.query(
+      "INSERT INTO products (name, price, image, category_id, genre_id, user_id, description) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *",
+      [name, price, imagePath, category_id, genre_id || null, 1, description]
+    );
+
+    res.status(201).json({
+      message: "Product created successfully",
+      product: newProduct.rows[0],
+    });
   } catch (error) {
-    res.status(400).json({ error: "invalid token" });
+    console.error("Error creating product:", error.message, {
+      name,
+      price,
+      category_id,
+      genre_id,
+      user_id,
+      description,
+      imagePath,
+    });
+    res.status(500).json({ error: "Server error" });
   }
-};
-
-const verifyTokenAndRole = (allowedRoles) => {
-  return async (req, res, next) => {
-    try {
-      const token = req.header("Authorization").split(" ")[1];
-      const decode = jwt.verify(token, process.env.JWT_SECRET);
-      req.user = decode;
-
-      const user = await pool.query("SELECT role FROM users WHERE id = $1", [
-        req.user.id,
-      ]);
-
-      if (user.rows.length === 0) {
-        return res.status(401).json({ error: "User not found" });
-      }
-
-      const currentRole = user.rows[0].role;
-
-      if (!allowedRoles.includes(currentRole)) {
-        return res.status(403).json({ error: "Access denied: Role mismacth" });
-      }
-
-      next();
-    } catch (error) {
-      console.error("Token verification error: ", error.message);
-      res.status(401).json({ error: "Unauthorized access" });
-    }
-  };
-};
+});
 
 app.get("/protected", authenticateToken, (req, res) => {
   res.json({ message: "This is a protected route" });
 });
 
+// Server setup
 app.listen(process.env.SERVER_PORT, () => {
   console.log(
     `Server running on port http://${process.env.SERVER_HOST}:${process.env.SERVER_PORT}`

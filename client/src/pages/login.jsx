@@ -25,9 +25,7 @@ const Login = () => {
 
         // Mock login logic, including username
         await login({
-          id: data.id,
-          username: data.username,
-          email: data.email,
+          email: email,
           role: data.role,
           token: data.token,
         });
