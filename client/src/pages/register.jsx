@@ -1,11 +1,10 @@
 import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const Register = () => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -20,14 +19,16 @@ const Register = () => {
       const data = await response.json();
       if (response.ok) {
         console.log(data);
+        // Redirect after successful registration
+        window.location.href = "/dashboard";
       } else {
         console.error(data.error);
       }
-      navigate("/dashboard");
     } catch (error) {
       console.error(error);
     }
   };
+
   return (
     <div className="bg-white p-5 w-1/4 shadow-md mx-auto">
       <h2 className="text-2xl text-center font-bold">Register</h2>

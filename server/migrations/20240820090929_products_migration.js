@@ -7,8 +7,11 @@ export async function up(knex) {
     table.increments("id").primary();
     table.string("name").notNullable();
     table.decimal("price", 10, 2).notNullable();
+    table.string("image");
     table.integer("category_id").unsigned();
     table.foreign("category_id").references("id").inTable("products_category");
+    table.integer("user_id").unsigned(); // id of the admin who created the product
+    table.foreign("user_id").references("id").inTable("users");
     table.text("description");
     table.timestamps();
   });

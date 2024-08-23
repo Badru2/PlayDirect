@@ -5,18 +5,38 @@ import AdminDashboard from "./pages/admin/dashboard";
 import SuperAdminDashboard from "./pages/super-admin/dashboard";
 import UserDashboard from "./pages/user/dashboard";
 import Register from "./pages/register";
+import { AuthProvider } from "./hooks/useAuth";
+import ProtectedRoute from "./ProtectedRoute";
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/admin/dashboard" element={<AdminDashboard />} />
-        <Route path="/superAdmin/dashboard" element={<SuperAdminDashboard />} />
-        <Route path="/dashboard" element={<UserDashboard />} />
-      </Routes>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route
+            path="/admin/dashboard"
+            element={
+              <ProtectedRoute
+                element={<AdminDashboard />}
+                allowedRoles={["admin"]}
+              />
+            }
+          />
+          <Route
+            path="/superAdmin/dashboard"
+            element={
+              <ProtectedRoute
+                element={<SuperAdminDashboard />}
+                allowedRoles={["superAdmin"]}
+              />
+            }
+          />
+          <Route path="/" element={<UserDashboard />} />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }
 

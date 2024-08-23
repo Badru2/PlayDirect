@@ -1,40 +1,40 @@
 import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
+import axios from "axios"; // Import axios
+import { useAuth } from "../hooks/useAuth"; // Adjust the path based on your project structure
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
-  const navigate = useNavigate();
+  const { login } = useAuth(); // Destructure the login function from useAuth
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      const response = await fetch("/api/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
+      const response = await axios.post("/api/login", {
+        email,
+        password,
       });
 
-      const data = await response.json();
+      const data = response.data;
 
-      if (response.ok) {
+      if (response.status === 200) {
         setMessage("Login successful!");
 
-        localStorage.setItem("token", data.token);
+        // Mock login logic, including username
+        await login({
+          id: data.id,
+          username: data.username,
+          email: data.email,
+          role: data.role,
+          token: data.token,
+        });
 
-        if (data.role === "superAdmin") {
-          navigate("/superAdmin/dashboard");
-        } else if (data.role === "admin") {
-          navigate("/admin/dashboard");
-        } else if (data.role === "user") {
-          navigate("/dashboard");
-        }
+        localStorage.setItem("token", data.token);
       } else {
-        setMessage(data.error);
+        setMessage(data.error || "Login failed");
       }
     } catch (error) {
       setMessage("An error occurred. Please try again later.");
