@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 
-const CreateCategoryProduct = () => {
+const CreateGenreProduct = () => {
   const [name, setName] = useState("");
 
   const handleSubmit = async (e) => {
@@ -9,7 +9,7 @@ const CreateCategoryProduct = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:8080/api/create/product-category",
+        "http://localhost:8080/api/product-genres/create",
         {
           name,
         }
@@ -40,4 +40,4 @@ const CreateCategoryProduct = () => {
   );
 };
 
-export default CreateCategoryProduct;
+export default CreateGenreProduct;

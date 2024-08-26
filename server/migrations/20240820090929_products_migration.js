@@ -7,12 +7,12 @@ export async function up(knex) {
     table.increments("id").primary();
     table.string("name").notNullable();
     table.decimal("price", 10, 2).notNullable();
-    table.string("image");
+    table.json("images"); // Change from string to json
     table.integer("category_id").unsigned();
     table.foreign("category_id").references("id").inTable("products_category");
     table.integer("genre_id").unsigned();
     table.foreign("genre_id").references("id").inTable("products_genre");
-    table.integer("user_id").unsigned(); // id of the admin who created the product
+    table.integer("user_id").unsigned();
     table.foreign("user_id").references("id").inTable("users");
     table.text("description");
     table.timestamps();
