@@ -8,8 +8,8 @@ const AdminDashboard = () => {
   return (
     <div>
       <AdminNavigation />
-      <CreateCategoryProduct />
-      <CreateGenreProduct />
+      {/* <CreateCategoryProduct />
+      <CreateGenreProduct /> */}
       <CreateProduct />
     </div>
   );

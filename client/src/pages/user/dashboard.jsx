@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import UserNavigation from "../../components/navigations/user-navigation";
 import { useAuth } from "../../hooks/useAuth";
 import axios from "axios";
+import { Link } from "react-router-dom";
 
 const UserDashboard = () => {
   const { user } = useAuth();
@@ -29,6 +30,7 @@ const UserDashboard = () => {
       <div className="mx-auto max-w-7xl mt-4">
         <div className="grid grid-cols-6 gap-4">
           {products.map((product) => {
+            // Format the price to Indonesian Rupiah currency
             const formattedPrice = new Intl.NumberFormat("id-ID", {
               style: "currency",
               currency: "IDR",
@@ -48,7 +50,9 @@ const UserDashboard = () => {
                   ))}
                 </div>
                 <div className="px-3 pb-3">
-                  <p>{product.name}</p>
+                  <Link to={`/product/${product.id}`}>
+                    <p>{product.name}</p>
+                  </Link>
                   <b>{formattedPrice}</b>
                 </div>
               </div>

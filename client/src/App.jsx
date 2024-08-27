@@ -7,6 +7,7 @@ import UserDashboard from "./pages/user/dashboard";
 import Register from "./pages/register";
 import { AuthProvider } from "./hooks/useAuth";
 import ProtectedRoute from "./ProtectedRoute";
+import ProductDetails from "./components/user/detail-product";
 
 function App() {
   return (
@@ -33,7 +34,9 @@ function App() {
               />
             }
           />
+
           <Route path="/" element={<UserDashboard />} />
+          <Route path="/product/:id" element={<ProductDetails />} />
         </Routes>
       </Router>
     </AuthProvider>

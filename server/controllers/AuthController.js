@@ -10,8 +10,16 @@ export const register = async (req, res) => {
   }
 
   try {
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // Check if the email is already registered
+    const existingUser = await pool.query(
+      "SELECT * FROM users WHERE email = $1",
+      [email]
+    );
+    if (existingUser.rows.length > 0) {
+      return res.status(400).json({ error: "Email already in use" });
+    }
 
+    const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = await pool.query(
       "INSERT INTO users (username, email, password, role) VALUES ($1, $2, $3, $4) RETURNING *",
       [username, email, hashedPassword, "user"]
@@ -51,9 +59,15 @@ export const login = async (req, res) => {
       { expiresIn: "1h" }
     );
 
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 3600000,
+      sameSite: "strict",
+    });
+
     res.status(200).json({
       message: "Login successful",
-      token,
       role: user.rows[0].role,
     });
   } catch (error) {

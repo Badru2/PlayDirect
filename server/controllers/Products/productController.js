@@ -3,14 +3,21 @@ import pool from "../../db.js";
 import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import fs from "fs";
-import { v4 as uuidv4 } from "uuid";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export const createProducts = async (req, res) => {
   const { name, price, category_id, genre_id, user_id, description } = req.body;
 
-  if (!name || !price || !category_id || !description) {
+  // Validate that all required fields are provided
+  if (
+    !name ||
+    !price ||
+    !category_id ||
+    !genre_id ||
+    !user_id ||
+    !description
+  ) {
     return res.status(400).json({ error: "All fields are required" });
   }
 
@@ -27,7 +34,6 @@ export const createProducts = async (req, res) => {
       );
       await fs.promises.mkdir(targetDir, { recursive: true });
       const date = Date.now();
-
       const imagePath = path.join(targetDir, `${date}-${imageFile.name}`);
 
       try {
@@ -49,7 +55,7 @@ export const createProducts = async (req, res) => {
         price,
         JSON.stringify(imagePaths),
         category_id,
-        genre_id || null,
+        JSON.stringify(genre_id), // Directly insert genre_id
         user_id,
         description,
       ]
@@ -71,6 +77,61 @@ export const getProducts = async (req, res) => {
     res.json(products.rows);
   } catch (error) {
     console.error("Error fetching products:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+const getProductWithGenres = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const result = await pool.query(
+      `
+      SELECT 
+        p.id,
+        p.name,
+        p.description,
+        p.price,
+        p.images,
+        p.category_id,
+        p.user_id,
+        p.created_at,
+        p.updated_at,
+        json_agg(json_build_object('id', g.id, 'name', g.name)) AS genres
+      FROM 
+        products p
+      JOIN 
+        product_genres pg ON p.id = pg.product_id
+      JOIN 
+        genres g ON g.id = pg.genre_id
+      WHERE 
+        p.id = $1
+      GROUP BY 
+        p.id;
+    `,
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Product not found" });
+    }
+
+    res.status(200).json(result.rows[0]);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+export const getProductById = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const product = await pool.query("SELECT * FROM products WHERE id = $1", [
+      id,
+    ]);
+    res.json(product.rows[0]);
+  } catch (error) {
+    console.error("Error fetching product:", error);
     res.status(500).json({ error: "Server error" });
   }
 };
