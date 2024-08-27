@@ -4,6 +4,11 @@ import dotenv from "dotenv";
 import bodyParser from "body-parser";
 import cors from "cors";
 import fileUpload from "express-fileupload";
+import { dirname } from "node:path";
+import { fileURLToPath } from "node:url";
+import path from "node:path";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 import authRoutes from "./routes/authRoute.js";
 import adminRoutes from "./routes/Admin/adminRoutes.js";
@@ -28,7 +33,13 @@ app.use(
   })
 );
 
-app.use(fileUpload());
+app.use(
+  fileUpload({
+    createParentPath: true,
+  })
+);
+
+app.use("/images", express.static(path.join(__dirname, "images")));
 
 // Login and register
 app.use("/api", authRoutes);

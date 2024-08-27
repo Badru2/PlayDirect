@@ -128,7 +128,7 @@ const CreateProduct = () => {
           onChange={handleImageChange}
           className="block mb-2"
         />
-        <div className="image-previews">
+        <div className="image-previews flex">
           {previews.map((preview, index) => (
             <img
               key={index}
