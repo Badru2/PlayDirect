@@ -8,6 +8,7 @@ import Register from "./pages/register";
 import { AuthProvider } from "./hooks/useAuth";
 import ProtectedRoute from "./ProtectedRoute";
 import ProductDetails from "./components/user/detail-product";
+import EditAdmin from "./components/superAdmin/edit-admin";
 
 function App() {
   return (
@@ -37,6 +38,7 @@ function App() {
 
           <Route path="/" element={<UserDashboard />} />
           <Route path="/product/:id" element={<ProductDetails />} />
+          <Route path="/admin/edit/:id" element={<EditAdmin />} />
         </Routes>
       </Router>
     </AuthProvider>

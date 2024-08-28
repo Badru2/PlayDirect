@@ -25,7 +25,7 @@ const CreateProduct = () => {
   useEffect(() => {
     if (user?.email) {
       axios
-        .get(`/api/admin/get/admin/id?email=${user.email}`)
+        .get(`/api/admin/get/id?email=${user.email}`)
         .then((response) => setUserId(response.data.id))
         .catch((err) => {
           setError("Error fetching user ID");
@@ -88,7 +88,7 @@ const CreateProduct = () => {
       !name ||
       !price ||
       !categoryId ||
-      selectedGenres.length === 0 ||
+      // selectedGenres.length === 0 ||
       !description
     ) {
       setError("Please fill all required fields.");
@@ -171,6 +171,13 @@ const CreateProduct = () => {
             ref={fileInputRef}
             className="hidden"
           />
+          <button
+            type="button"
+            onClick={handleAddMoreImages}
+            className="mt-3 bg-blue-500 text-white px-4 py-1 rounded-sm"
+          >
+            Add More Images
+          </button>
           <div className="image-previews gap-3 grid grid-cols-3">
             {previews.length > 0 ? (
               previews.map((preview, index) => (
@@ -193,13 +200,6 @@ const CreateProduct = () => {
               <p>No images selected</p>
             )}
           </div>
-          <button
-            type="button"
-            onClick={handleAddMoreImages}
-            className="mt-3 bg-blue-500 text-white px-4 py-1 rounded-sm"
-          >
-            Add More Images
-          </button>
         </div>
       </div>
 

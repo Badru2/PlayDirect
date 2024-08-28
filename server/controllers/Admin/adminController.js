@@ -40,6 +40,50 @@ export const getAdmins = async (req, res) => {
   }
 };
 
+// Edit admin
+export const editAdmin = async (req, res) => {
+  const { id } = req.params;
+  const { username, email, password } = req.body;
+
+  if (!username || !email || !password) {
+    return res.status(400).json({ error: "All fields are required" });
+  }
+
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const result = await pool.query(
+      "UPDATE users SET username = $1, email = $2, password = $3 WHERE id = $4",
+      [username, email, hashedPassword, id]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: "Admin not found" });
+    }
+
+    res.json({ message: "Admin updated successfully" });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+// Delete admin
+export const deleteAdmin = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const result = await pool.query("DELETE FROM users WHERE id = $1", [id]);
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: "Admin not found" });
+    }
+
+    res.json({ message: "Admin deleted successfully" });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
 // Get user ID by email
 export const getIdByEmail = async (req, res) => {
   const { email } = req.query;

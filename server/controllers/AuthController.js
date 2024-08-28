@@ -19,15 +19,37 @@ export const register = async (req, res) => {
       return res.status(400).json({ error: "Email already in use" });
     }
 
+    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Insert the new user into the database
     const newUser = await pool.query(
       "INSERT INTO users (username, email, password, role) VALUES ($1, $2, $3, $4) RETURNING *",
       [username, email, hashedPassword, "user"]
     );
 
+    const user = newUser.rows[0];
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { id: user.id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+
+    // Set the JWT token in a cookie
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production", // Adjust based on environment
+      maxAge: 3600000, // 1 hour
+      sameSite: "strict",
+    });
+
+    // Respond with success message and token
     res.status(201).json({
-      message: "User registered successfully",
-      user: newUser.rows[0],
+      message: "User registered and logged in successfully",
+      token: token, // Optional, if needed on the client side
+      role: user.role,
     });
   } catch (err) {
     console.error(err.message);

@@ -1,31 +1,67 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
+import { useAuth } from "../hooks/useAuth";
 
 const Register = () => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [message, setMessage] = useState("");
+  const navigate = useNavigate(); // Use navigate for redirection
+  const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch("/api/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const registrationResponse = await axios.post(
+        "/api/register",
+        {
+          username,
+          email,
+          password,
         },
-        body: JSON.stringify({ username, email, password }),
-      });
-      const data = await response.json();
-      if (response.ok) {
-        console.log(data);
-        // Redirect after successful registration
-        window.location.href = "/";
+        {
+          withCredentials: true, // Ensure cookies are sent
+        }
+      );
+
+      if (registrationResponse.status === 201) {
+        try {
+          const loginResponse = await axios.post("/api/login", {
+            email,
+            password,
+          });
+
+          const data = loginResponse.data;
+
+          if (loginResponse.status === 200) {
+            setMessage("Login successful!");
+
+            // Mock login logic, including username
+            await login({
+              email: email,
+              role: data.role,
+              token: data.token,
+            });
+
+            localStorage.setItem("token", data.token);
+            navigate("/"); // Redirect to the dashboard
+          } else {
+            setMessage(data.error || "Login failed");
+          }
+        } catch (error) {
+          setMessage("An error occurred during login. Please try again later.");
+          console.error("Login Error:", error);
+        }
       } else {
-        console.error(data.error);
+        setMessage(registrationResponse.data.error || "Registration failed");
       }
     } catch (error) {
-      console.error(error);
+      setMessage(
+        "An error occurred during registration. Please try again later."
+      );
+      console.error("Registration Error:", error);
     }
   };
 
@@ -69,6 +105,7 @@ const Register = () => {
         >
           Register
         </button>
+        {message && <p>{message}</p>}
       </form>
 
       <div className="text-center">
