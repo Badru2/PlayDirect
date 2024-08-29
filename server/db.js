@@ -1,5 +1,6 @@
-import pkg from "pg";
+import { Sequelize } from "sequelize";
 import dotenv from "dotenv";
+
 dotenv.config({ path: "../.env" });
 
 if (
@@ -10,14 +11,16 @@ if (
   throw new Error("Missing required environment variables");
 }
 
-const { Pool } = pkg;
+const sequelize = new Sequelize(
+  process.env.PG_DATABASE,
+  process.env.PG_USER,
+  process.env.PG_PASSWORD,
+  {
+    host: process.env.SERVER_HOST,
+    dialect: "postgres",
+    port: process.env.PG_PORT,
+    logging: false, // Disable logging; default: console.log
+  }
+);
 
-const pool = new Pool({
-  host: process.env.SERVER_HOST,
-  database: process.env.PG_DATABASE,
-  user: process.env.PG_USER,
-  password: process.env.PG_PASSWORD,
-  port: process.env.PG_PORT,
-});
-
-export default pool;
+export default sequelize;

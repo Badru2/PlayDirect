@@ -9,6 +9,7 @@ import { AuthProvider } from "./hooks/useAuth";
 import ProtectedRoute from "./ProtectedRoute";
 import ProductDetails from "./components/user/detail-product";
 import EditAdmin from "./components/superAdmin/edit-admin";
+import Cart from "./pages/user/cart";
 
 function App() {
   return (
@@ -39,6 +40,7 @@ function App() {
           <Route path="/" element={<UserDashboard />} />
           <Route path="/product/:id" element={<ProductDetails />} />
           <Route path="/admin/edit/:id" element={<EditAdmin />} />
+          <Route path="/cart" element={<Cart />} />
         </Routes>
       </Router>
     </AuthProvider>

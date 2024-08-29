@@ -1,6 +1,11 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import pool from "../db.js";
+import User from "../models/User.js";
+import date from "date-and-time";
+import validator from "validator";
+
+const now = new Date();
+const dateNow = date.format(now, "YYYY-MM-DD HH:mm:ss");
 
 export const register = async (req, res) => {
   const { username, email, password } = req.body;
@@ -9,13 +14,29 @@ export const register = async (req, res) => {
     return res.status(400).json({ error: "All fields are required" });
   }
 
+  // Validate username can't duplicate
+  const existingUser = await User.findOne({ where: { username } });
+  if (existingUser) {
+    return res.status(400).json({ error: "Username already in use" });
+  }
+
+  // Validate email format
+  if (!validator.isEmail(email)) {
+    return res.status(400).json({ error: "Invalid email format" });
+  }
+
+  // Validate password strength
+  if (!validator.isStrongPassword(password)) {
+    return res.status(400).json({
+      error:
+        "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one symbol",
+    });
+  }
+
   try {
     // Check if the email is already registered
-    const existingUser = await pool.query(
-      "SELECT * FROM users WHERE email = $1",
-      [email]
-    );
-    if (existingUser.rows.length > 0) {
+    const existingUser = await User.findOne({ where: { email } });
+    if (existingUser) {
       return res.status(400).json({ error: "Email already in use" });
     }
 
@@ -23,16 +44,18 @@ export const register = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Insert the new user into the database
-    const newUser = await pool.query(
-      "INSERT INTO users (username, email, password, role) VALUES ($1, $2, $3, $4) RETURNING *",
-      [username, email, hashedPassword, "user"]
-    );
-
-    const user = newUser.rows[0];
+    const newUser = await User.create({
+      username,
+      email,
+      password: hashedPassword,
+      role: "user",
+      created_at: dateNow,
+      updated_at: dateNow,
+    });
 
     // Generate JWT token
     const token = jwt.sign(
-      { id: user.id, role: user.role },
+      { id: newUser.id, role: newUser.role },
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
@@ -40,7 +63,7 @@ export const register = async (req, res) => {
     // Set the JWT token in a cookie
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production", // Adjust based on environment
+      secure: process.env.NODE_ENV === "production",
       maxAge: 3600000, // 1 hour
       sameSite: "strict",
     });
@@ -48,8 +71,8 @@ export const register = async (req, res) => {
     // Respond with success message and token
     res.status(201).json({
       message: "User registered and logged in successfully",
-      token: token, // Optional, if needed on the client side
-      role: user.role,
+      token, // Optional, if needed on the client side
+      role: newUser.role,
     });
   } catch (err) {
     console.error(err.message);
@@ -61,36 +84,38 @@ export const login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const user = await pool.query("SELECT * FROM users WHERE email = $1", [
-      email,
-    ]);
+    // Find user by email
+    const user = await User.findOne({ where: { email } });
 
-    if (user.rows.length === 0) {
+    if (!user) {
       return res.status(401).json({ error: "Invalid email or password" });
     }
 
-    const validPassword = await bcrypt.compare(password, user.rows[0].password);
+    // Compare passwords
+    const validPassword = await bcrypt.compare(password, user.password);
 
     if (!validPassword) {
       return res.status(401).json({ error: "Invalid email or password" });
     }
 
+    // Generate JWT token
     const token = jwt.sign(
-      { id: user.rows[0].id, role: user.rows[0].role },
+      { id: user.id, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
 
+    // Set the JWT token in a cookie
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      maxAge: 3600000,
+      maxAge: 3600000, // 1 hour
       sameSite: "strict",
     });
 
     res.status(200).json({
       message: "Login successful",
-      role: user.rows[0].role,
+      role: user.role,
     });
   } catch (error) {
     console.error(error.message);

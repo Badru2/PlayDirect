@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import getCategoriesProduct from "./get-category-product";
-import getGenreProduct from "./get-genre-preduct";
+import getGenreProduct from "./get-genre-product";
 import { useAuth } from "../../hooks/useAuth";
 
 const CreateProduct = () => {

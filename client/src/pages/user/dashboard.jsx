@@ -7,22 +7,52 @@ import { Link } from "react-router-dom";
 const UserDashboard = () => {
   const { user } = useAuth();
   const [products, setProducts] = useState([]);
+  const [userId, setUserId] = useState(user?.id || "");
+
+  useEffect(() => {
+    if (user?.email) {
+      axios
+        .get(`/api/admin/get/id?email=${user.email}`)
+        .then((response) => setUserId(response.data.id))
+        .catch((err) => {
+          setError("Error fetching user ID");
+          console.error("Error fetching user ID:", err);
+        });
+    }
+  }, [user]);
 
   // Fetch product data
   const fetchProducts = async () => {
     try {
       const response = await axios.get("/api/product/show");
-      setProducts(response.data);
-      console.log(response.data);
+      let products = response.data;
+
+      products.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+      setProducts(products);
+      // console.log(products);
     } catch (error) {
       console.error(error);
     }
   };
 
   useEffect(() => {
-    console.log(user);
+    console.log(userId);
     fetchProducts();
   }, []);
+
+  const handleAddToCart = async ({ productId }) => {
+    try {
+      const response = await axios.post("/api/cart/add", {
+        userId,
+        productId,
+        quantity: 1,
+      });
+      console.log(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return (
     <div>
@@ -54,6 +84,11 @@ const UserDashboard = () => {
                     <p>{product.name}</p>
                   </Link>
                   <b>{formattedPrice}</b>
+                  <button
+                    onClick={() => handleAddToCart({ productId: product.id })}
+                  >
+                    Add to Cart
+                  </button>
                 </div>
               </div>
             );

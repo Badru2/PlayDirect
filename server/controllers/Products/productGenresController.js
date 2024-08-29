@@ -1,4 +1,4 @@
-import pool from "../../db.js";
+import ProductGenre from "../../models/ProductGenre.js";
 
 export const createProductGenres = async (req, res) => {
   const { name } = req.body;
@@ -8,14 +8,11 @@ export const createProductGenres = async (req, res) => {
   }
 
   try {
-    const newGenre = await pool.query(
-      "INSERT INTO products_genre (name) VALUES ($1) RETURNING *",
-      [name]
-    );
+    const newGenre = await ProductGenre.create({ name });
 
     res.status(201).json({
       message: "Product genre created successfully",
-      genre: newGenre.rows[0],
+      genre: newGenre,
     });
   } catch (error) {
     console.error(error.message);
@@ -25,11 +22,13 @@ export const createProductGenres = async (req, res) => {
 
 export const showProductGenres = async (req, res) => {
   try {
-    const genres = await pool.query(
-      "SELECT * FROM products_genre ORDER BY name ASC"
-    );
-    res.json(genres.rows);
+    const genres = await ProductGenre.findAll({
+      order: [["name", "ASC"]],
+    });
+
+    res.json(genres);
   } catch (error) {
-    console.error(error);
+    console.error(error.message);
+    res.status(500).json({ error: "Server error" });
   }
 };

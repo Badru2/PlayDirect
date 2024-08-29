@@ -17,6 +17,8 @@ import productRoutes from "./routes/Products/productRoutes.js";
 import productGenreRoutes from "./routes/Products/productGenresRoutes.js";
 import productCategoryRoutes from "./routes/Products/productCategoriesRoutes.js";
 
+import cartRoute from "./routes/cartRoute.js";
+
 import authenticateToken from "./middleware/authenticateToken.js";
 
 dotenv.config({ path: "../.env" });
@@ -51,6 +53,8 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/product", productRoutes);
 app.use("/api/product-genres", productGenreRoutes);
 app.use("/api/product-categories", productCategoryRoutes);
+
+app.use("/api/cart", cartRoute);
 
 // Protected route
 app.get("/protected", authenticateToken, (req, res) => {

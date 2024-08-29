@@ -1,4 +1,4 @@
-import pool from "../../db.js";
+import ProductCategory from "../../models/ProductCategory.js";
 
 export const createProductCategories = async (req, res) => {
   const { name } = req.body;
@@ -8,14 +8,11 @@ export const createProductCategories = async (req, res) => {
   }
 
   try {
-    const newCategory = await pool.query(
-      "INSERT INTO products_category (name) VALUES ($1) RETURNING *",
-      [name]
-    );
+    const newCategory = await ProductCategory.create({ name });
 
     res.status(201).json({
       message: "Product category created successfully",
-      category: newCategory.rows[0],
+      category: newCategory,
     });
   } catch (error) {
     console.error(error.message);
@@ -25,11 +22,13 @@ export const createProductCategories = async (req, res) => {
 
 export const showProductCategories = async (req, res) => {
   try {
-    const categories = await pool.query(
-      "SELECT * FROM products_category ORDER BY name ASC"
-    );
-    res.json(categories.rows);
+    const categories = await ProductCategory.findAll({
+      order: [["name", "ASC"]],
+    });
+
+    res.json(categories);
   } catch (error) {
-    console.error(error);
+    console.error(error.message);
+    res.status(500).json({ error: "Server error" });
   }
 };

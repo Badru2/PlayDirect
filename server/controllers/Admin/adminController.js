@@ -1,7 +1,11 @@
 import bcrypt from "bcryptjs";
-import pool from "../../db.js";
+import User from "../../models/User.js";
+import date from "date-and-time";
+import validator from "validator";
 
-// Create new admin on super admin
+const now = new Date();
+const dateNow = date.format(now, "YYYY-MM-DD HH:mm:ss");
+
 export const createAdmin = async (req, res) => {
   const { username, email, password } = req.body;
 
@@ -9,17 +13,44 @@ export const createAdmin = async (req, res) => {
     return res.status(400).json({ error: "All fields are required" });
   }
 
+  const existingUser = await User.findOne({ where: { username } });
+  if (existingUser) {
+    return res.status(400).json({ error: "Username already in use" });
+  }
+
+  // Validate email format
+  if (!validator.isEmail(email)) {
+    return res.status(400).json({ error: "Invalid email format" });
+  }
+
+  // Validate password strength
+  if (!validator.isStrongPassword(password)) {
+    return res.status(400).json({
+      error:
+        "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one symbol",
+    });
+  }
+
   try {
+    const existingUser = await User.findOne({ where: { email } });
+    if (existingUser) {
+      return res.status(400).json({ error: "Email already in use" });
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newAdmin = await pool.query(
-      "INSERT INTO users (username, email, password, role) VALUES ($1, $2, $3, $4) RETURNING *",
-      [username, email, hashedPassword, "admin"]
-    );
+    const newAdmin = await User.create({
+      username,
+      email,
+      password: hashedPassword,
+      role: "admin",
+      created_at: dateNow,
+      updated_at: dateNow,
+    });
 
     res.status(201).json({
       message: "Admin registered successfully",
-      admin: newAdmin.rows[0],
+      admin: newAdmin,
     });
   } catch (error) {
     console.error(error.message);
@@ -30,13 +61,14 @@ export const createAdmin = async (req, res) => {
 // Get all admins
 export const getAdmins = async (req, res) => {
   try {
-    const admins = await pool.query("SELECT * FROM users WHERE role = $1", [
-      "admin",
-    ]);
+    const admins = await User.findAll({
+      where: { role: "admin" },
+    });
 
-    res.json(admins.rows);
+    res.json(admins);
   } catch (error) {
     console.error(error);
+    res.status(500).json({ error: "Server error" });
   }
 };
 
@@ -51,12 +83,20 @@ export const editAdmin = async (req, res) => {
 
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
-    const result = await pool.query(
-      "UPDATE users SET username = $1, email = $2, password = $3 WHERE id = $4",
-      [username, email, hashedPassword, id]
+
+    const [updated] = await User.update(
+      {
+        username,
+        email,
+        password: hashedPassword,
+        updated_at: dateNow,
+      },
+      {
+        where: { id },
+      }
     );
 
-    if (result.rowCount === 0) {
+    if (updated === 0) {
       return res.status(404).json({ error: "Admin not found" });
     }
 
@@ -72,8 +112,11 @@ export const deleteAdmin = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const result = await pool.query("DELETE FROM users WHERE id = $1", [id]);
-    if (result.rowCount === 0) {
+    const deleted = await User.destroy({
+      where: { id },
+    });
+
+    if (!deleted) {
       return res.status(404).json({ error: "Admin not found" });
     }
 
@@ -93,18 +136,38 @@ export const getIdByEmail = async (req, res) => {
   }
 
   try {
-    const result = await pool.query("SELECT id FROM users WHERE email = $1", [
-      email,
-    ]);
+    const user = await User.findOne({
+      where: { email },
+      attributes: ["id"],
+    });
 
-    if (result.rows.length === 0) {
+    if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
 
-    const userId = result.rows[0].id;
-    res.json({ id: userId });
+    res.json({ id: user.id });
   } catch (error) {
     console.error("Error fetching user ID:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+// Get username by ID
+export const getUsernameById = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const user = await User.findByPk(id, {
+      attributes: ["username"],
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.json({ username: user.username });
+  } catch (error) {
+    console.error("Error fetching username:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };

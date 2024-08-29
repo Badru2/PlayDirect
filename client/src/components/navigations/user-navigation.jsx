@@ -11,7 +11,10 @@ const UserNavigation = () => {
           Play<span>Direct</span>
         </Link>
       </div>
-      <div>
+      <div className="flex space-x-4">
+        <div>
+          <Link to={"/cart"}>cart</Link>
+        </div>
         {user ? (
           <button onClick={logout} className="bg-red-500 text-white rounded">
             Logout

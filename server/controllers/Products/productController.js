@@ -1,8 +1,12 @@
 import path from "path";
-import pool from "../../db.js";
 import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import fs from "fs";
+import Product from "../../models/Product.js";
+import date from "date-and-time";
+
+const now = new Date();
+const dateNow = date.format(now, "YYYY-MM-DD HH:mm:ss");
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -22,43 +26,50 @@ export const createProducts = async (req, res) => {
       ? req.files.images
       : [req.files.images];
 
-    for (const imageFile of images) {
-      const targetDir = path.join(
-        __dirname,
-        "../../../client/public/images/products"
-      );
-      await fs.promises.mkdir(targetDir, { recursive: true });
-      const date = Date.now();
-      const imagePath = path.join(targetDir, `${date}-${imageFile.name}`);
+    const targetDir = path.join(
+      __dirname,
+      "../../../client/public/images/products"
+    );
 
-      try {
-        await imageFile.mv(imagePath);
-        imagePaths.push(`${date}-${imageFile.name}`);
-      } catch (error) {
-        console.error("File upload error:", error.message);
-        return res.status(500).json({ error: "File upload failed" });
+    try {
+      await fs.promises.mkdir(targetDir, { recursive: true });
+
+      for (const imageFile of images) {
+        const dateNow = Date.now();
+        const imagePath = path.join(targetDir, `${dateNow}-${imageFile.name}`);
+
+        try {
+          await imageFile.mv(imagePath);
+          imagePaths.push(`${dateNow}-${imageFile.name}`);
+        } catch (error) {
+          console.error("File upload error:", error.message);
+          return res.status(500).json({ error: "File upload failed" });
+        }
       }
+    } catch (mkdirError) {
+      console.error("Directory creation error:", mkdirError.message);
+      return res
+        .status(500)
+        .json({ error: "Failed to create directory for uploads" });
     }
   }
 
   try {
-    const newProduct = await pool.query(
-      `INSERT INTO products (name, price, images, category_id, genre_id, user_id, description, created_at, updated_at) 
-       VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), NOW()) RETURNING *`,
-      [
-        name,
-        price,
-        JSON.stringify(imagePaths),
-        category_id,
-        JSON.stringify(genre_id) || null,
-        user_id,
-        description,
-      ]
-    );
+    const newProduct = await Product.create({
+      name,
+      price,
+      images: imagePaths,
+      category_id,
+      genre_id: genre_id || null,
+      user_id,
+      description,
+      created_at: dateNow,
+      updated_at: dateNow,
+    });
 
     res.status(201).json({
       message: "Product created successfully",
-      product: newProduct.rows[0],
+      product: newProduct,
     });
   } catch (error) {
     console.error("Error creating product:", error.message);
@@ -68,8 +79,8 @@ export const createProducts = async (req, res) => {
 
 export const getProducts = async (req, res) => {
   try {
-    const products = await pool.query("SELECT * FROM products");
-    res.json(products.rows);
+    const products = await Product.findAll();
+    res.json(products);
   } catch (error) {
     console.error("Error fetching products:", error);
     res.status(500).json({ error: "Server error" });
@@ -79,10 +90,13 @@ export const getProducts = async (req, res) => {
 export const getProductById = async (req, res) => {
   const { id } = req.params;
   try {
-    const product = await pool.query("SELECT * FROM products WHERE id = $1", [
-      id,
-    ]);
-    res.json(product.rows[0]);
+    const product = await Product.findByPk(id);
+
+    if (!product) {
+      return res.status(404).json({ error: "Product not found" });
+    }
+
+    res.json(product);
   } catch (error) {
     console.error("Error fetching product:", error);
     res.status(500).json({ error: "Server error" });
