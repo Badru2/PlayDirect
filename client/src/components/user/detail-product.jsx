@@ -40,10 +40,10 @@ const ProductDetails = () => {
   return (
     <div>
       <UserNavigation />
-      <div className="mx-auto max-w-7xl mt-4">
+      <div className="mx-auto max-w-7xl">
         <div className="rounded-sm p-4 grid grid-cols-4 gap-2">
-          <div className="relative w-full z-10">
-            <div className="sticky top-0 bg-white shadow-md pb-3">
+          <div className="relative w-full">
+            <div className="sticky top-16 bg-white shadow-md pb-3">
               <div className="carousel">
                 {product.images.map((image, index) => (
                   <div

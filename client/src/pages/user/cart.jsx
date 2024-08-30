@@ -2,151 +2,231 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useAuth } from "../../hooks/useAuth";
 import UserNavigation from "../../components/navigations/user-navigation";
+import { Link } from "react-router-dom";
 
 const Cart = () => {
   const { user } = useAuth();
-  const [userId, setUserId] = useState(user?.id || "");
-  const [cartItems, setCartItems] = useState([]);
-  const [products, setProducts] = useState({}); // Use an object for product details
+  const [userId, setUserId] = useState("");
+  const [cartItems, setCartItems] = useState([]); // Initialize as empty array
+  const [products, setProducts] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const fetchUserIdAndCart = async () => {
+    // setLoading(true);
+    // setError(null);
+
+    if (user?.email) {
+      try {
+        const userResponse = await axios.get(
+          `/api/admin/get/id?email=${user.email}`
+        );
+        const fetchedUserId = userResponse.data.id;
+        setUserId(fetchedUserId);
+
+        if (fetchedUserId) {
+          const cartResponse = await axios.get(
+            `/api/cart/show?userId=${fetchedUserId}`
+          );
+          const cartItemsData = cartResponse.data;
+
+          // Ensure cartItemsData is an array
+          if (Array.isArray(cartItemsData)) {
+            setCartItems(cartItemsData);
+
+            if (cartItemsData.length > 0) {
+              const productIds = cartItemsData.map((cart) => cart.product_id);
+              const productsResponse = await axios.get(
+                `/api/product/show?ids=${productIds.join(",")}`
+              );
+              const productsArray = productsResponse.data;
+
+              productsArray.sort(
+                (a, b) => new Date(b.created_at) - new Date(a.created_at)
+              );
+              setProducts(productsArray);
+            }
+          } else {
+            setCartItems([]);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setError("Failed to fetch data.");
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
 
   useEffect(() => {
-    if (user?.email) {
-      axios
-        .get(`/api/admin/get/id?email=${user.email}`)
-        .then((response) => setUserId(response.data.id))
-        .catch((err) => {
-          console.error("Error fetching user ID:", err);
-        });
-    }
+    fetchUserIdAndCart();
   }, [user]);
 
-  const fetchCart = async () => {
-    if (!userId) return;
-
-    try {
-      const response = await axios.get(`/api/cart/show?userId=${userId}`);
-      const cartItems = response.data;
-      cartItems.sort((a, b) => a.created_at - b.created_at);
-
-      setCartItems(cartItems);
-
-      if (cartItems.length > 0) {
-        await fetchProducts(cartItems);
-      }
-    } catch (error) {
-      console.error("Error fetching cart items:", error);
-    }
-  };
-
-  const fetchProducts = async (carts) => {
-    const productIds = carts.map((cart) => cart.product_id);
-
-    try {
-      const response = await axios.get(
-        `/api/product/show?ids=${productIds.join(",")}`
-      );
-      const productsArray = response.data;
-
-      // Sort products by name
-      productsArray.sort((a, b) => a.name.localeCompare(b.name));
-
-      // Create a dictionary of products by their ID
-      const productsById = productsArray.reduce((acc, product) => {
-        acc[product.id] = product;
-        return acc;
+  useEffect(() => {
+    const calculateTotal = () => {
+      const productMap = products.reduce((map, product) => {
+        map[product.id] = product;
+        return map;
       }, {});
 
-      setProducts(productsById);
-    } catch (error) {
-      console.error("Error fetching products:", error);
-    }
-  };
+      const totalAmount = cartItems.reduce((acc, cart) => {
+        const product = productMap[cart.product_id];
+        return acc + (product ? cart.quantity * product.price : 0);
+      }, 0);
 
-  const updateQuantity = async (productId, currentQuantity, action) => {
+      setTotal(totalAmount);
+    };
+
+    calculateTotal();
+  }, [cartItems, products]);
+
+  const updateQuantity = async (productId, newQuantity) => {
+    if (newQuantity < 1) return;
+
     try {
-      const newQuantity =
-        action === "increase"
-          ? currentQuantity + 1
-          : Math.max(currentQuantity - 1, 1);
-
       await axios.put(`/api/cart/update`, {
         userId,
         productId,
         quantity: newQuantity,
       });
 
-      // Refresh cart after updating quantity
-      fetchCart();
-    } catch (error) {
-      console.error(
-        `Error ${action === "increase" ? "adding" : "removing"} cart quantity:`,
-        error
+      setCartItems((prevCartItems) =>
+        prevCartItems.map((item) =>
+          item.product_id === productId
+            ? { ...item, quantity: newQuantity }
+            : item
+        )
       );
+    } catch (error) {
+      console.error("Error updating cart quantity:", error);
+      setError("Failed to update quantity.");
     }
   };
 
-  useEffect(() => {
-    fetchCart();
-  }, [userId]);
+  const deleteCartItem = async (id) => {
+    try {
+      await axios.delete(`/api/cart/delete/${id}`);
+      // Refresh data
+      fetchUserIdAndCart();
+    } catch (error) {
+      console.error("Error deleting cart item:", error);
+      setError("Failed to delete cart item.");
+    }
+  };
+
+  if (!user) return <p>Please log in to view your cart.</p>;
+
+  if (loading) return <p>Loading...</p>;
 
   return (
     <div>
       <UserNavigation />
-      <h1>Cart</h1>
-      <div className="space-y-4">
-        {cartItems.map((cart) => {
-          const product = products[cart.product_id];
-          if (!product) {
-            return (
-              <div key={cart.product_id} className="flex space-x-3">
-                <div>Loading product details...</div>
-              </div>
-            );
-          }
+      <div className="flex max-w-7xl mx-auto space-x-3 p-3">
+        <div className=" w-3/5 bg-white shadow-md">
+          <div className="font-bold p-4">CART</div>
+          {error && <p className="text-red-500">{error}</p>}
+          {cartItems.length === 0 ? (
+            <p className="p-4">Your cart is empty.</p>
+          ) : (
+            cartItems.map((cart) => {
+              const product = products.find((p) => p.id === cart.product_id);
+              if (!product)
+                return <div key={cart.product_id}>Product not found</div>;
 
-          const totalPrice = product.price * cart.quantity;
+              const totalPrice = product.price * cart.quantity;
 
-          return (
-            <div key={cart.product_id} className="flex space-x-3 p-4 border-b">
-              <div>
-                <img
-                  src={`/images/products/${product.images[0]}`}
-                  alt={product.name}
-                  className="w-20 h-20 object-cover"
-                />
-              </div>
+              return (
+                <div
+                  key={cart.product_id}
+                  className="flex space-x-3 p-4 border-t"
+                >
+                  <div>
+                    <Link to={`/product/${product.id}`}>
+                      <img
+                        src={`/images/products/${product.images[0]}`}
+                        alt={product.name}
+                        className="w-20 h-20 object-cover border-2 rounded-md"
+                      />
+                    </Link>
+                  </div>
+                  <div className="flex-1 flex justify-between px-4">
+                    <div>
+                      <p className="text-lg font-semibold">{product.name}</p>
+                      <p className="text-gray-600">
+                        {Intl.NumberFormat("id-ID", {
+                          style: "currency",
+                          currency: "IDR",
+                        }).format(totalPrice)}
+                      </p>
+                    </div>
 
-              <div className="flex-1 flex flex-col justify-center px-4">
-                <p className="text-lg font-semibold">{product.name}</p>
-                <p className="text-gray-600">
-                  {Intl.NumberFormat("id-ID", {
-                    style: "currency",
-                    currency: "IDR",
-                  }).format(totalPrice)}
-                </p>
-                <div className="flex items-center space-x-4">
-                  <button
-                    onClick={() =>
-                      updateQuantity(product.id, cart.quantity, "increase")
-                    }
-                    className="px-4 py-2 bg-blue-500 text-white rounded"
-                  >
-                    +
-                  </button>
-                  <p className="text-gray-500">Quantity: {cart.quantity}</p>
-                  <button
-                    onClick={() =>
-                      updateQuantity(product.id, cart.quantity, "decrease")
-                    }
-                    className="px-4 py-2 bg-red-500 text-white rounded"
-                  >
-                    -
-                  </button>
+                    <div className="flex flex-col justify-end">
+                      <div className="flex items-center space-x-4">
+                        <button
+                          onClick={() => deleteCartItem(cart.id)}
+                          className="text-red-500 border-2 p-2 rounded-md"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="1em"
+                            height="1em"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              fill="none"
+                              stroke="currentColor"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M4 7h16m-10 4v6m4-6v6M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2l1-12M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3"
+                            ></path>
+                          </svg>
+                        </button>
+                        <div className="border-2 flex rounded-md space-x-3 items-center text-center">
+                          <button
+                            onClick={() =>
+                              updateQuantity(product.id, cart.quantity - 1)
+                            }
+                            className="px-2 py-1"
+                          >
+                            -
+                          </button>
+                          <p className="text-gray-500">{cart.quantity}</p>
+                          <button
+                            onClick={() =>
+                              updateQuantity(product.id, cart.quantity + 1)
+                            }
+                            className="px-2 py-1"
+                          >
+                            +
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              );
+            })
+          )}
+        </div>
+        <div className="w-2/5">
+          <div className="bg-white p-5 shadow-md sticky top-14">
+            <h1 className="font-bold text-xl">Total:</h1>
+            <div className="font-bold text-xl">
+              {Intl.NumberFormat("id-ID", {
+                style: "currency",
+                currency: "IDR",
+              }).format(total)}
             </div>
-          );
-        })}
+            <div className="mt-3">
+              <button className="bg-green-500 w-full py-2 font-bold text-white text-xl rounded-md">
+                Checkout
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

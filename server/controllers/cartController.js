@@ -39,7 +39,6 @@ export const createCart = async (req, res) => {
 };
 
 // get cart
-
 export const getCart = async (req, res) => {
   const { userId } = req.query;
 
@@ -50,6 +49,7 @@ export const getCart = async (req, res) => {
   try {
     const cart = await Cart.findAll({
       where: { user_id: userId },
+      order: [["created_at", "DESC"]],
     });
 
     if (cart.length === 0) {
@@ -69,7 +69,6 @@ export const getDetailById = async (req, res) => {
 
   try {
     const products = await Product.findAll(id, {
-      order: ["created_at", "DESC"],
       attributes: ["id", "name", "price", "image", "created_at", "updated_at"],
     });
 
@@ -101,6 +100,26 @@ export const editQuantity = async (req, res) => {
     }
 
     res.json({ message: "Quantity updated successfully" });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+// delete cart
+export const deleteCart = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const deleted = await Cart.destroy({
+      where: { id },
+    });
+
+    if (!deleted) {
+      return res.status(404).json({ error: "Cart item not found" });
+    }
+
+    res.json({ message: "Cart item deleted successfully" });
   } catch (error) {
     console.error(error.message);
     res.status(500).json({ error: "Server error" });
