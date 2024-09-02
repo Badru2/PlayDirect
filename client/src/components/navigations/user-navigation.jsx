@@ -13,7 +13,7 @@ const UserNavigation = () => {
       </div>
       <div className="flex space-x-4 items-center">
         <div>
-          <Link to={"/cart"}>
+          <Link to={user ? "/cart" : "/login"}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="1em"

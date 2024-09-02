@@ -2,21 +2,19 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useAuth } from "../../hooks/useAuth";
 import UserNavigation from "../../components/navigations/user-navigation";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const Cart = () => {
   const { user } = useAuth();
   const [userId, setUserId] = useState("");
-  const [cartItems, setCartItems] = useState([]); // Initialize as empty array
-  const [products, setProducts] = useState([]);
+  const [cartItems, setCartItems] = useState([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const fetchUserIdAndCart = async () => {
-    // setLoading(true);
-    // setError(null);
+  const navigate = useNavigate();
 
+  const fetchUserIdAndCart = async () => {
     if (user?.email) {
       try {
         const userResponse = await axios.get(
@@ -31,22 +29,9 @@ const Cart = () => {
           );
           const cartItemsData = cartResponse.data;
 
-          // Ensure cartItemsData is an array
+          // Pastikan cartItemsData adalah array
           if (Array.isArray(cartItemsData)) {
             setCartItems(cartItemsData);
-
-            if (cartItemsData.length > 0) {
-              const productIds = cartItemsData.map((cart) => cart.product_id);
-              const productsResponse = await axios.get(
-                `/api/product/show?ids=${productIds.join(",")}`
-              );
-              const productsArray = productsResponse.data;
-
-              productsArray.sort(
-                (a, b) => new Date(b.created_at) - new Date(a.created_at)
-              );
-              setProducts(productsArray);
-            }
           } else {
             setCartItems([]);
           }
@@ -66,23 +51,18 @@ const Cart = () => {
 
   useEffect(() => {
     const calculateTotal = () => {
-      const productMap = products.reduce((map, product) => {
-        map[product.id] = product;
-        return map;
-      }, {});
-
-      const totalAmount = cartItems.reduce((acc, cart) => {
-        const product = productMap[cart.product_id];
-        return acc + (product ? cart.quantity * product.price : 0);
+      const totalAmount = cartItems.reduce((acc, cartItem) => {
+        const productPrice = cartItem.Product.price;
+        return acc + cartItem.quantity * productPrice;
       }, 0);
 
       setTotal(totalAmount);
     };
 
     calculateTotal();
-  }, [cartItems, products]);
+  }, [cartItems]);
 
-  const updateQuantity = async (productId, newQuantity) => {
+  const updateQuantity = async (userId, productId, newQuantity) => {
     if (newQuantity < 1) return;
 
     try {
@@ -108,15 +88,17 @@ const Cart = () => {
   const deleteCartItem = async (id) => {
     try {
       await axios.delete(`/api/cart/delete/${id}`);
-      // Refresh data
-      fetchUserIdAndCart();
+      fetchUserIdAndCart(); // Refresh data setelah item dihapus
     } catch (error) {
       console.error("Error deleting cart item:", error);
       setError("Failed to delete cart item.");
     }
   };
 
-  if (!user) return <p>Please log in to view your cart.</p>;
+  // Redirect ke login jika user tidak terautentikasi
+  if (!user) {
+    return navigate("/login");
+  }
 
   if (loading) return <p>Loading...</p>;
 
@@ -124,17 +106,14 @@ const Cart = () => {
     <div>
       <UserNavigation />
       <div className="flex max-w-7xl mx-auto space-x-3 p-3">
-        <div className=" w-3/5 bg-white shadow-md">
+        <div className="w-3/5 bg-white shadow-md">
           <div className="font-bold p-4">CART</div>
           {error && <p className="text-red-500">{error}</p>}
           {cartItems.length === 0 ? (
             <p className="p-4">Your cart is empty.</p>
           ) : (
             cartItems.map((cart) => {
-              const product = products.find((p) => p.id === cart.product_id);
-              if (!product)
-                return <div key={cart.product_id}>Product not found</div>;
-
+              const product = cart.Product;
               const totalPrice = product.price * cart.quantity;
 
               return (
@@ -187,7 +166,11 @@ const Cart = () => {
                         <div className="border-2 flex rounded-md space-x-3 items-center text-center">
                           <button
                             onClick={() =>
-                              updateQuantity(product.id, cart.quantity - 1)
+                              updateQuantity(
+                                userId,
+                                product.id,
+                                cart.quantity - 1
+                              )
                             }
                             className="px-2 py-1"
                           >
@@ -196,7 +179,11 @@ const Cart = () => {
                           <p className="text-gray-500">{cart.quantity}</p>
                           <button
                             onClick={() =>
-                              updateQuantity(product.id, cart.quantity + 1)
+                              updateQuantity(
+                                userId,
+                                product.id,
+                                cart.quantity + 1
+                              )
                             }
                             className="px-2 py-1"
                           >

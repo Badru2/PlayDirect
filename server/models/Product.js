@@ -48,4 +48,7 @@ const Product = sequelize.define(
   }
 );
 
+Cart.belongsTo(Product, { foreignKey: "product_id" });
+Product.hasMany(Cart, { foreignKey: "product_id" });
+
 export default Product;

@@ -2,12 +2,14 @@ import React, { useEffect, useState } from "react";
 import UserNavigation from "../../components/navigations/user-navigation";
 import { useAuth } from "../../hooks/useAuth";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const UserDashboard = () => {
   const { user } = useAuth();
   const [products, setProducts] = useState([]);
   const [userId, setUserId] = useState(user?.id || "");
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (user?.email) {
@@ -15,7 +17,6 @@ const UserDashboard = () => {
         .get(`/api/admin/get/id?email=${user.email}`)
         .then((response) => setUserId(response.data.id))
         .catch((err) => {
-          setError("Error fetching user ID");
           console.error("Error fetching user ID:", err);
         });
     }
@@ -27,17 +28,16 @@ const UserDashboard = () => {
       const response = await axios.get("/api/product/show");
       let products = response.data;
 
+      // Sort products by creation date
       products.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
       setProducts(products);
-      // console.log(products);
     } catch (error) {
-      console.error(error);
+      console.error("Error fetching products:", error);
     }
   };
 
   useEffect(() => {
-    console.log(userId);
     fetchProducts();
   }, []);
 
@@ -50,7 +50,7 @@ const UserDashboard = () => {
       });
       console.log(response.data);
     } catch (error) {
-      console.error(error);
+      console.error("Error adding to cart:", error);
     }
   };
 
@@ -85,10 +85,18 @@ const UserDashboard = () => {
                   </Link>
                   <b>{formattedPrice}</b>
                   <button
-                    onClick={() => handleAddToCart({ productId: product.id })}
+                    onClick={
+                      user
+                        ? () => handleAddToCart({ productId: product.id })
+                        : () => navigate("/login")
+                    }
                   >
                     Add to Cart
                   </button>
+                  {/* Display cart quantity if it exists */}
+                  {product.Carts && product.Carts.length > 0 && (
+                    <p>In Cart: {product.Carts[0].quantity}</p>
+                  )}
                 </div>
               </div>
             );

@@ -1,6 +1,7 @@
 import Cart from "../models/Cart.js";
 import date from "date-and-time";
 import Product from "../models/Product.js";
+import { Op } from "sequelize";
 
 const now = new Date();
 const dateNow = date.format(now, "YYYY-MM-DD HH:mm:ss");
@@ -50,6 +51,12 @@ export const getCart = async (req, res) => {
     const cart = await Cart.findAll({
       where: { user_id: userId },
       order: [["created_at", "DESC"]],
+      include: [
+        {
+          model: Product,
+          attributes: ["id", "name", "price", "images"],
+        },
+      ],
     });
 
     if (cart.length === 0) {
@@ -63,39 +70,21 @@ export const getCart = async (req, res) => {
   }
 };
 
-// Get detail by ID
-export const getDetailById = async (req, res) => {
-  const { id } = req.params;
-
-  try {
-    const products = await Product.findAll(id, {
-      attributes: ["id", "name", "price", "image", "created_at", "updated_at"],
-    });
-
-    if (!products) {
-      return res.status(404).json({ error: "Product not found" });
-    }
-
-    res.json({ products });
-  } catch (error) {
-    console.error("Error fetching product:", error);
-    res.status(500).json({ error: "Server error" });
-  }
-};
-
-// add quantity
+// Edit quantity
 export const editQuantity = async (req, res) => {
-  const { productId, quantity } = req.body;
+  const { userId, productId, quantity } = req.body;
 
   try {
     const updated = await Cart.update(
-      { quantity: quantity, updated_at: dateNow },
+      { quantity, updated_at: dateNow },
       {
-        where: { product_id: productId },
+        where: {
+          [Op.and]: [{ user_id: userId }, { product_id: productId }],
+        },
       }
     );
 
-    if (updated === 0) {
+    if (updated[0] === 0) {
       return res.status(404).json({ error: "Cart item not found" });
     }
 
@@ -106,7 +95,7 @@ export const editQuantity = async (req, res) => {
   }
 };
 
-// delete cart
+// Delete cart item
 export const deleteCart = async (req, res) => {
   const { id } = req.params;
 

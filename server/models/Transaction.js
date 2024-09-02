@@ -1,19 +1,19 @@
 import { DataTypes } from "sequelize";
 import sequelize from "../db.js";
 
-const Cart = sequelize.define(
-  "Cart",
+const Transaction = sequelize.define(
+  "Transaction",
   {
     user_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    product_id: {
-      type: DataTypes.INTEGER,
+    total_price: {
+      type: DataTypes.FLOAT,
       allowNull: false,
     },
-    quantity: {
-      type: DataTypes.INTEGER,
+    products: {
+      type: DataTypes.JSONB,
       allowNull: false,
     },
     created_at: {
@@ -26,14 +26,13 @@ const Cart = sequelize.define(
     },
   },
   {
-    tableName: "carts",
+    tableName: "transaction", // Changed to plural form
     timestamps: false,
   }
 );
 
-Cart.associate = (models) => {
-  Cart.belongsTo(models.Product, { foreignKey: "product_id" });
-  Cart.belongsTo(models.User, { foreignKey: "user_id" });
+Transaction.associate = (models) => {
+  Transaction.belongsTo(models.User, { foreignKey: "user_id" });
 };
 
-export default Cart;
+export default Transaction;

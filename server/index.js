@@ -18,6 +18,7 @@ import productGenreRoutes from "./routes/Products/productGenresRoutes.js";
 import productCategoryRoutes from "./routes/Products/productCategoriesRoutes.js";
 
 import cartRoute from "./routes/cartRoute.js";
+import transactionRoutes from "./routes/transactionRoutes.js";
 
 import authenticateToken from "./middleware/authenticateToken.js";
 
@@ -55,10 +56,16 @@ app.use("/api/product-genres", productGenreRoutes);
 app.use("/api/product-categories", productCategoryRoutes);
 
 app.use("/api/cart", cartRoute);
+app.use("/api/transaction", transactionRoutes);
 
 // Protected route
 app.get("/protected", authenticateToken, (req, res) => {
   res.json({ message: "This is a protected route" });
+});
+
+// 404
+app.use((req, res) => {
+  res.status(404).json({ error: "Page not found" });
 });
 
 // Server setup

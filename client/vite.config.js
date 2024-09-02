@@ -6,6 +6,7 @@ dotenv.config({ path: "../.env" });
 export default defineConfig({
   plugins: [react()],
   server: {
+    host: "0.0.0.0",
     port: process.env.CLIENT_PORT,
     proxy: {
       "/api": {
