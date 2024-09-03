@@ -12,6 +12,8 @@ const Cart = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const [products, setProducts] = useState([]);
+
   const navigate = useNavigate();
 
   const fetchUserIdAndCart = async () => {
@@ -47,6 +49,10 @@ const Cart = () => {
 
   useEffect(() => {
     fetchUserIdAndCart();
+
+    cartItems.map((cartItem) => {
+      console.log(cartItem.Product);
+    });
   }, [user]);
 
   useEffect(() => {
@@ -92,6 +98,38 @@ const Cart = () => {
     } catch (error) {
       console.error("Error deleting cart item:", error);
       setError("Failed to delete cart item.");
+    }
+  };
+
+  const handleCheckout = async (e) => {
+    e.preventDefault();
+
+    // Prepare the payload
+    const payload = {
+      user_id: userId,
+      total_price: total,
+      products: cartItems.map((item) => ({
+        product_id: item.Product.id,
+        product_name: item.Product.name,
+        image: item.Product.images[0],
+        price: item.Product.price,
+        quantity: item.quantity,
+      })),
+    };
+
+    try {
+      const response = await axios.post("/api/transaction/create", payload, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      console.log(response.data);
+      // Optionally, clear the cart after successful checkout
+      // setCartItems([]);
+      // setTotal(0);
+    } catch (error) {
+      console.error("Error during checkout:", error);
+      setError("Checkout failed. Please try again.");
     }
   };
 
@@ -208,7 +246,10 @@ const Cart = () => {
               }).format(total)}
             </div>
             <div className="mt-3">
-              <button className="bg-green-500 w-full py-2 font-bold text-white text-xl rounded-md">
+              <button
+                onClick={handleCheckout}
+                className="bg-green-500 w-full py-2 font-bold text-white text-xl rounded-md"
+              >
                 Checkout
               </button>
             </div>

@@ -10,8 +10,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@preline/accordion": "^2.4.1",
     "axios": "^1.7.4",
     "dotenv": "^16.4.5",
+    "preline": "^2.4.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.26.1",

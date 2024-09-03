@@ -1,4 +1,6 @@
+// models/Transaction.js
 import { DataTypes } from "sequelize";
+import User from "./User.js";
 import sequelize from "../db.js";
 
 const Transaction = sequelize.define(
@@ -16,6 +18,10 @@ const Transaction = sequelize.define(
       type: DataTypes.JSONB,
       allowNull: false,
     },
+    status: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
     created_at: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
@@ -26,13 +32,11 @@ const Transaction = sequelize.define(
     },
   },
   {
-    tableName: "transaction", // Changed to plural form
+    tableName: "transaction",
     timestamps: false,
   }
 );
 
-Transaction.associate = (models) => {
-  Transaction.belongsTo(models.User, { foreignKey: "user_id" });
-};
+Transaction.belongsTo(User, { foreignKey: "user_id" });
 
 export default Transaction;

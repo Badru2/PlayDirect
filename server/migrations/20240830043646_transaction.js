@@ -9,6 +9,7 @@ export async function up(knex) {
     table.foreign("user_id").references("id").inTable("users");
     table.json("products");
     table.integer("total_price");
+    table.string("status").defaultTo("pending");
     table.timestamps();
   });
 }
