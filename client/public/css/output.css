@@ -4374,6 +4374,10 @@ details.collapse summary::-webkit-details-marker {
   cursor: pointer;
 }
 
+.cursor-not-allowed {
+  cursor: not-allowed;
+}
+
 .resize {
   resize: both;
 }
@@ -4941,6 +4945,10 @@ details.collapse summary::-webkit-details-marker {
 
 .opacity-100 {
   opacity: 1;
+}
+
+.opacity-50 {
+  opacity: 0.5;
 }
 
 .shadow-lg {

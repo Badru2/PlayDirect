@@ -48,14 +48,6 @@ const Cart = () => {
   };
 
   useEffect(() => {
-    fetchUserIdAndCart();
-
-    cartItems.map((cartItem) => {
-      console.log(cartItem.Product);
-    });
-  }, [user]);
-
-  useEffect(() => {
     const calculateTotal = () => {
       const totalAmount = cartItems.reduce((acc, cartItem) => {
         const productPrice = cartItem.Product.price;
@@ -104,7 +96,6 @@ const Cart = () => {
   const handleCheckout = async (e) => {
     e.preventDefault();
 
-    // Prepare the payload
     const payload = {
       user_id: userId,
       total_price: total,
@@ -118,20 +109,36 @@ const Cart = () => {
     };
 
     try {
+      // Create the transaction
       const response = await axios.post("/api/transaction/create", payload, {
         headers: {
           "Content-Type": "application/json",
         },
       });
+
       console.log(response.data);
-      // Optionally, clear the cart after successful checkout
-      // setCartItems([]);
-      // setTotal(0);
+
+      // Clear the cart after the transaction is successful
+      await axios.post(`/api/cart/clear`, {
+        user_id: userId,
+      });
+
+      // Clear the cart items from the state
+      setCartItems([]);
+      setTotal(0);
     } catch (error) {
       console.error("Error during checkout:", error);
-      setError("Checkout failed. Please try again.");
+      setError("Checkout or cart clearing failed. Please try again.");
     }
   };
+
+  useEffect(() => {
+    fetchUserIdAndCart();
+
+    cartItems.map((cartItem) => {
+      console.log(cartItem.Product);
+    });
+  }, [user]);
 
   // Redirect ke login jika user tidak terautentikasi
   if (!user) {
@@ -247,8 +254,12 @@ const Cart = () => {
             </div>
             <div className="mt-3">
               <button
+                disabled={total === 0}
                 onClick={handleCheckout}
-                className="bg-green-500 w-full py-2 font-bold text-white text-xl rounded-md"
+                className={
+                  "bg-green-500 w-full py-2 font-bold text-white text-xl rounded-md " +
+                  (total === 0 ? "opacity-50 cursor-not-allowed" : "")
+                }
               >
                 Checkout
               </button>

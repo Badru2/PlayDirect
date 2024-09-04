@@ -165,6 +165,7 @@ const CreateProduct = () => {
           <label htmlFor="image">Images:</label>
           <input
             type="file"
+            accept="image/*"
             id="image"
             multiple
             onChange={handleImageChange}
@@ -222,7 +223,7 @@ const CreateProduct = () => {
           </select>
         </div>
 
-        <div className={categoryId}>
+        <div className={categoryId == "1" ? "" : "hidden"}>
           <label htmlFor="genre">Genre:</label>
           {genres.map((g) => (
             <div key={g.id} className="flex items-center">

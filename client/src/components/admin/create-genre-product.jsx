@@ -8,12 +8,9 @@ const CreateGenreProduct = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post(
-        "http://localhost:8080/api/product-genres/create",
-        {
-          name,
-        }
-      );
+      const response = await axios.post("/api/product-genres/create", {
+        name,
+      });
 
       console.log(201, response);
 

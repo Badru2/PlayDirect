@@ -13,6 +13,7 @@ import ProductDetails from "../../components/user/detail-product";
 import EditAdmin from "../../components/superAdmin/edit-admin";
 import ProtectedRoute from "../../ProtectedRoute";
 import Cart from "../../pages/user/cart";
+import OrderList from "../../pages/user/order-list";
 
 function CustomLayout() {
   const { user } = useAuth(); // Ensure useAuth is correctly providing user
@@ -56,6 +57,7 @@ function CustomLayout() {
         <Route path="/product/:id" element={<ProductDetails />} />
         <Route path="/admin/edit/:id" element={<EditAdmin />} />
         <Route path="/cart" element={<Cart />} />
+        <Route path="/order-list" element={<OrderList />} />
       </Routes>
     </Router>
   );

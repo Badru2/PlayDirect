@@ -8,12 +8,9 @@ const CreateCategoryProduct = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post(
-        "http://localhost:8080/api/product-categories/create",
-        {
-          name,
-        }
-      );
+      const response = await axios.post("/api/product-categories/create", {
+        name,
+      });
 
       console.log(201, response);
 

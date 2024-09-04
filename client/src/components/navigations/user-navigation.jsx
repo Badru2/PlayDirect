@@ -12,28 +12,27 @@ const UserNavigation = () => {
         </Link>
       </div>
       <div className="flex space-x-4 items-center">
-        <div>
-          <Link to={user ? "/cart" : "/login"}>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="1em"
-              height="1em"
-              viewBox="0 0 32 32"
+        <Link to={user ? "/cart" : "/login"}>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="1em"
+            height="1em"
+            viewBox="0 0 32 32"
+          >
+            <g
+              fill="none"
+              stroke="currentColor"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
             >
-              <g
-                fill="none"
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-              >
-                <path d="M6 6h24l-3 13H9m18 4H10L5 2H2"></path>
-                <circle cx={25} cy={27} r={2}></circle>
-                <circle cx={12} cy={27} r={2}></circle>
-              </g>
-            </svg>
-          </Link>
-        </div>
+              <path d="M6 6h24l-3 13H9m18 4H10L5 2H2"></path>
+              <circle cx={25} cy={27} r={2}></circle>
+              <circle cx={12} cy={27} r={2}></circle>
+            </g>
+          </svg>
+        </Link>
+        <Link to={user ? "/order-list" : "/login"}>Order</Link>
         {user ? (
           <button onClick={logout} className="bg-red-500 text-white rounded">
             Logout

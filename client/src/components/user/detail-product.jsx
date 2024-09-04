@@ -44,18 +44,18 @@ const ProductDetails = () => {
         <div className="rounded-sm p-4 grid grid-cols-4 gap-2">
           <div className="relative w-full">
             <div className="sticky top-16 bg-white shadow-md pb-3">
-              <div className="carousel">
+              <div className="carousel w-full">
                 {product.images.map((image, index) => (
                   <div
                     key={index}
-                    className={`carousel-item inset-0 w-full sticky transition-opacity duration-500 ${
+                    className={`carousel-item inset-0 w-full sticky transition-opacity duration-500  ${
                       index === currentSlide ? "opacity-100" : "opacity-0"
                     }`}
                   >
                     <img
                       src={`/images/products/${image}`}
                       alt={product.name}
-                      className="w-full "
+                      className="w-full"
                     />
                   </div>
                 ))}
