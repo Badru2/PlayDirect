@@ -5,13 +5,12 @@ import fs from "fs";
 import Product from "../../models/Product.js";
 import date from "date-and-time";
 
-const now = new Date();
-const dateNow = date.format(now, "YYYY-MM-DD HH:mm:ss");
-
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export const createProducts = async (req, res) => {
   const { name, price, category_id, genre_id, user_id, description } = req.body;
+  const now = new Date();
+  const dateNow = date.format(now, "YYYY-MM-DD HH:mm:ss");
 
   if (!name || !price || !category_id || !user_id || !description) {
     return res.status(400).json({ error: "All fields are required" });
@@ -80,6 +79,22 @@ export const getProducts = async (req, res) => {
     res.json(products);
   } catch (error) {
     console.error("Error fetching products:", error.message);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+export const deleteProduct = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const product = await Product.findByPk(id);
+    if (!product) {
+      return res.status(404).json({ error: "Product not found" });
+    }
+
+    await product.destroy();
+    res.json({ message: "Product deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting product:", error.message);
     res.status(500).json({ error: "Server error" });
   }
 };

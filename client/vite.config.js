@@ -7,11 +7,11 @@ dotenv.config({ path: "../.env" });
 
 export default defineConfig({
   plugins: [react()],
-  // resolve: {
-  //   alias: {
-  //     "@": path.resolve(__dirname, "./src"),
-  //   },
-  // },
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+    },
+  },
   server: {
     host: "0.0.0.0",
     port: process.env.CLIENT_PORT,

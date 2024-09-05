@@ -5,6 +5,7 @@ import CreateGenreProduct from "../../components/admin/create-genre-product";
 import CreateProduct from "../../components/admin/create-product";
 import axios from "axios";
 import { format } from "date-fns";
+// import { id } from "date-fns/locale";
 
 const AdminDashboard = () => {
   const [transactions, setTransactions] = useState([]);
@@ -70,7 +71,10 @@ const AdminDashboard = () => {
                     Date:{" "}
                     <b>
                       {transaction.created_at
-                        ? format(new Date(transaction.created_at), "dd/MM/yyyy")
+                        ? format(
+                            new Date(transaction.created_at),
+                            "EEE-MMM-yyyy"
+                          )
                         : "N/A"}
                     </b>
                   </div>
@@ -146,7 +150,7 @@ const AdminDashboard = () => {
               </div>
               <div className="flex space-x-2 justify-end">
                 <button
-                  onClick={() => updateStatus(transaction.id, "delivered")}
+                  onClick={() => updateStatus(transaction.id, "deliver")}
                   className="bg-blue-500 text-white px-4 py-1 rounded-sm"
                 >
                   Deliver

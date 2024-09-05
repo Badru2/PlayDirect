@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import UserNavigation from "../../components/navigations/user-navigation";
 import { useAuth } from "../../hooks/useAuth";
+import { Link } from "react-router-dom";
 
 const OrderList = () => {
   const { user } = useAuth();
@@ -36,6 +37,19 @@ const OrderList = () => {
     }
   };
 
+  const updateStatus = async (id, status) => {
+    try {
+      const response = await axios.put(`/api/transaction/update/${id}`, {
+        status,
+      });
+
+      console.log(response.data);
+      fetchOrders();
+    } catch (error) {
+      console.error("Error updating status:", error);
+    }
+  };
+
   useEffect(() => {
     fetchOrders();
   }, []);
@@ -52,7 +66,10 @@ const OrderList = () => {
               key={order.id}
               className="bg-white shadow-md rounded-lg p-6 mb-4"
             >
-              <h2 className="text-xl font-bold mb-2">Order ID: {order.id}</h2>
+              <Link to={`/order/${order.id}`}>
+                <h2 className="text-xl font-bold mb-2">Order ID: {order.id}</h2>
+              </Link>
+
               <div className="mb-2">
                 <div>
                   Date: {new Date(order.updated_at).toLocaleDateString()}
@@ -61,23 +78,90 @@ const OrderList = () => {
                   Time: {new Date(order.updated_at).toLocaleTimeString()}
                 </div>
               </div>
-              <p
-                className={
-                  "mb-2 " +
-                  `${order.status === "cancelled" && "text-red-500 "}` +
-                  `${order.status === "delivered" && "text-green-500 "}` +
-                  `${order.status === "pending" && "text-yellow-500 "}`
-                }
-              >
-                Status: {order.status}
-              </p>
-              <p className="mb-2">
+              <div>
+                Status:{" "}
+                <span
+                  className={
+                    "mb-2 font-semibold uppercase " +
+                    `${
+                      order.status === "cancelled"
+                        ? "text-red-500 "
+                        : "text-black "
+                    }` +
+                    `${
+                      order.status === "delivered"
+                        ? "text-green-500 "
+                        : "text-black "
+                    }` +
+                    `${
+                      order.status === "pending"
+                        ? "text-yellow-500 "
+                        : "text-black "
+                    }` +
+                    `${
+                      order.status === "deliver"
+                        ? "text-blue-500 "
+                        : "text-black "
+                    }`
+                  }
+                >
+                  {order.status}
+                </span>
+              </div>
+              <div className="mb-2">
                 Total:{" "}
-                {Intl.NumberFormat("id-ID", {
-                  style: "currency",
-                  currency: "IDR",
-                }).format(order.total_price)}
-              </p>
+                <b>
+                  {Intl.NumberFormat("id-ID", {
+                    style: "currency",
+                    currency: "IDR",
+                  }).format(order.total_price)}
+                </b>
+              </div>
+              <div className="space-x-3 flex">
+                <Link to={`/order/${order.id}`}>
+                  <button className="bg-blue-500 text-white px-4 py-1 rounded-sm">
+                    Detail
+                  </button>
+                </Link>
+                <div>
+                  {order.status === "deliver" ||
+                  order.status === "delivered" ? (
+                    <button
+                      disabled={order.status === "delivered"}
+                      onClick={() => updateStatus(order.id, "delivered")}
+                      className={
+                        "bg-green-500 text-white px-4 py-1 rounded-sm " +
+                        `${
+                          order.status === "delivered"
+                            ? "opacity-50 cursor-not-allowed"
+                            : ""
+                        }`
+                      }
+                    >
+                      Finish
+                    </button>
+                  ) : (
+                    <button
+                      disabled={
+                        order.status === "cancelled" ||
+                        order.status === "delivered"
+                      }
+                      onClick={() => updateStatus(order.id, "cancelled")}
+                      className={
+                        "bg-red-500 text-white px-4 py-1 rounded-sm " +
+                        `${
+                          order.status === "cancelled" ||
+                          order.status === "delivered"
+                            ? "opacity-50 cursor-not-allowed"
+                            : ""
+                        }`
+                      }
+                    >
+                      Cancel
+                    </button>
+                  )}
+                </div>
+              </div>
             </div>
           ))
         )}

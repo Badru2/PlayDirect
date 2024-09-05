@@ -26,12 +26,12 @@ export const register = async (req, res) => {
   }
 
   // Validate password strength
-  if (!validator.isStrongPassword(password)) {
-    return res.status(400).json({
-      error:
-        "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one symbol",
-    });
-  }
+  // if (!validator.isStrongPassword(password)) {
+  //   return res.status(400).json({
+  //     error:
+  //       "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one symbol",
+  //   });
+  // }
 
   try {
     // Check if the email is already registered

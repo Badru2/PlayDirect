@@ -31,6 +31,8 @@ const Cart = () => {
           );
           const cartItemsData = cartResponse.data;
 
+          console.log("cartItemsData", cartItemsData);
+
           // Pastikan cartItemsData adalah array
           if (Array.isArray(cartItemsData)) {
             setCartItems(cartItemsData);
@@ -182,7 +184,7 @@ const Cart = () => {
                         {Intl.NumberFormat("id-ID", {
                           style: "currency",
                           currency: "IDR",
-                        }).format(totalPrice)}
+                        }).format(product.price)}
                       </p>
                     </div>
 

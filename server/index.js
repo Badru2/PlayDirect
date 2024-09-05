@@ -19,6 +19,8 @@ import productCategoryRoutes from "./routes/Products/productCategoriesRoutes.js"
 
 import cartRoute from "./routes/cartRoute.js";
 import transactionRoutes from "./routes/transactionRoutes.js";
+import orderRoutes from "./routes/orderRoutes.js";
+import wishlistRoutes from "./routes/wishlistRoutes.js";
 
 import authenticateToken from "./middleware/authenticateToken.js";
 
@@ -57,6 +59,8 @@ app.use("/api/product-categories", productCategoryRoutes);
 
 app.use("/api/cart", cartRoute);
 app.use("/api/transaction", transactionRoutes);
+app.use("/api/order", orderRoutes);
+app.use("/api/wishlist", wishlistRoutes);
 
 // Protected route
 app.get("/protected", authenticateToken, (req, res) => {

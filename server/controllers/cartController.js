@@ -3,11 +3,10 @@ import date from "date-and-time";
 import Product from "../models/Product.js";
 import { Op } from "sequelize";
 
-const now = new Date();
-const dateNow = date.format(now, "YYYY-MM-DD HH:mm:ss");
-
 export const createCart = async (req, res) => {
   const { userId, productId, quantity } = req.body;
+  const now = new Date();
+  const dateNow = date.format(now, "YYYY-MM-DD HH:mm:ss");
 
   try {
     // Find existing cart item
@@ -73,6 +72,9 @@ export const getCart = async (req, res) => {
 // Edit quantity
 export const editQuantity = async (req, res) => {
   const { userId, productId, quantity } = req.body;
+
+  const now = new Date();
+  const dateNow = date.format(now, "YYYY-MM-DD HH:mm:ss");
 
   try {
     const updated = await Cart.update(

@@ -55,12 +55,12 @@ const ProductDetails = () => {
                     <img
                       src={`/images/products/${image}`}
                       alt={product.name}
-                      className="w-full"
+                      className="w-full object-cover max-h-80"
                     />
                   </div>
                 ))}
               </div>
-              <div className="flex w-full justify-center gap-2 py-2 bottom-0 sticky">
+              <div className="flex w-full justify-center gap-2 py-2 bottom-0 sticky flex-wrap overflow-y-auto max-h-[153px]">
                 {product.images.map((image, index) => (
                   <img
                     key={index}
@@ -82,14 +82,6 @@ const ProductDetails = () => {
             <h1 className="text-xl font-bold">{product.name}</h1>
             <p>{formattedPrice}</p>
             <p>{product.description}</p>
-            <p>{product.description}</p>
-            <p>{product.description}</p>
-            <p>{product.description}</p>
-            <p>{product.description}</p>
-            <p>{product.description}</p>
-            <p>{product.description}</p>
-            <p>{product.description}</p>
-            {/* Add more product details here */}
           </div>
         </div>
       </div>
