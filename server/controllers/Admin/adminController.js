@@ -24,12 +24,12 @@ export const createAdmin = async (req, res) => {
   }
 
   // Validate password strength
-  if (!validator.isStrongPassword(password)) {
-    return res.status(400).json({
-      error:
-        "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one symbol",
-    });
-  }
+  // if (!validator.isStrongPassword(password)) {
+  //   return res.status(400).json({
+  //     error:
+  //       "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one symbol",
+  //   });
+  // }
 
   try {
     const existingUser = await User.findOne({ where: { email } });
@@ -77,7 +77,7 @@ export const editAdmin = async (req, res) => {
   const { id } = req.params;
   const { username, email, password } = req.body;
 
-  if (!username || !email || !password) {
+  if (!username || !email) {
     return res.status(400).json({ error: "All fields are required" });
   }
 

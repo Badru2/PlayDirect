@@ -24,17 +24,13 @@ const Wishlist = () => {
 
         if (fetchedUserId) {
           const wishlistResponse = await axios.get(
-            `/api/wishlist/${fetchedUserId}`
+            `/api/wishlist/show?userId=${fetchedUserId}`
           );
           const wishlistItemsData = wishlistResponse.data;
 
           console.log("wishlistItemsData", wishlistItemsData);
           // Ensure that the response is an array
-          if (Array.isArray(wishlistItemsData)) {
-            setWishlists(wishlistItemsData);
-          } else {
-            setWishlists([]);
-          }
+          setWishlists(wishlistItemsData);
         }
       } catch (error) {
         console.error("Error fetching wishlist:", error);
@@ -71,17 +67,19 @@ const Wishlist = () => {
                 const product = wishlist.Product;
                 return (
                   <div
-                    key={wishlist.productId}
-                    className="bg-white shadow-md rounded-lg p-6 mb-4"
+                    key={wishlist.product_id}
+                    className="rounded-lg p-6 mb-4"
                   >
-                    {/* <Link to={`/product/${product.id}`}>
-                    </Link> */}
-                    <img
-                      src={product.images[0]}
-                      alt={product.name}
-                      className="w-full h-40 object-cover mb-4"
-                    />
-                    <h2 className="text-lg font-bold mb-2">{product.name}</h2>
+                    <Link to={`/product/${product.id}`}>
+                      <img
+                        src={`/images/products/${product.images[0]}`}
+                        alt={product.name}
+                        className="w-full h-40 object-cover mb-4"
+                      />
+                    </Link>
+                    <h2 className="text-lg font-bold mb-2">
+                      <Link to={`/product/${product.id}`}>{product.name}</Link>
+                    </h2>
                     <p className="text-gray-600 mb-2">
                       Price:{" "}
                       {Intl.NumberFormat("id-ID", {

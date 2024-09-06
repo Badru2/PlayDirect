@@ -1,7 +1,31 @@
+import express from "express";
 import date from "date-and-time";
 import Transaction from "../models/Transaction.js";
 import User from "../models/User.js";
+import http from "http";
+import { Server } from "socket.io";
+import dotenv from "dotenv";
 
+dotenv.config({ path: "../.env" });
+
+const app = express();
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "*", // Allow cross-origin requests (adjust as needed)
+  },
+});
+
+// Socket.IO connection handler
+io.on("connection", (socket) => {
+  console.log("A user connected");
+
+  socket.on("disconnect", () => {
+    console.log("A user disconnected");
+  });
+});
+
+// Emit transaction update event from the backend
 export const createTransaction = async (req, res) => {
   const { user_id, total_price, products } = req.body;
 
@@ -21,6 +45,9 @@ export const createTransaction = async (req, res) => {
       created_at: dateNow,
       updated_at: dateNow,
     });
+
+    // Emit event to notify all clients about the new transaction
+    io.emit("transactionCreated", newTransaction);
 
     res.status(201).json(newTransaction);
   } catch (error) {
@@ -58,9 +85,18 @@ export const updateTransactions = async (req, res) => {
     transaction.updated_at = dateNow;
     await transaction.save();
 
+    // Emit event to notify all clients about the updated transaction
+    io.emit("transactionUpdated", transaction);
+
     res.status(200).json(transaction);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Server error" });
   }
 };
+
+// Starting the server with Socket.IO
+const PORT = process.env.REACT_APP_SOCKET_PORT;
+server.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});

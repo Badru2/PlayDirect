@@ -66,7 +66,7 @@ const EditAdmin = () => {
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          required
+          // required
           className="bg-white w-full border rounded px-2 py-1"
         />
       </div>

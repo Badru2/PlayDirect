@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 const GetAdmins = ({ admins, deleteAdmin }) => {
   return (
-    <div className="bg-white w-1/3 mx-auto p-4 shadow-lg rounded">
+    <div className="bg-white w-full mx-auto p-4 shadow-lg rounded">
       <table className="w-full text-left border-collapse">
         <thead>
           <tr>

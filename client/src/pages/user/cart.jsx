@@ -161,7 +161,6 @@ const Cart = () => {
           ) : (
             cartItems.map((cart) => {
               const product = cart.Product;
-              const totalPrice = product.price * cart.quantity;
 
               return (
                 <div

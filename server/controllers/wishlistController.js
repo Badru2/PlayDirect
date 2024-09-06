@@ -71,6 +71,39 @@ export const fetchWishlist = async (req, res) => {
   }
 };
 
+// Get wishlist
+export const getWishlist = async (req, res) => {
+  const { userId } = req.query;
+
+  if (!userId) {
+    return res.status(400).json({ error: "User ID is required" });
+  }
+
+  try {
+    const wishlist = await Wishlist.findAll({
+      where: { user_id: userId },
+      order: [["created_at", "DESC"]],
+      include: [
+        {
+          model: Product,
+          attributes: ["id", "name", "price", "images"],
+        },
+      ],
+    });
+
+    if (wishlist.length === 0) {
+      return res
+        .status(200)
+        .json({ message: "Wishlist is empty", wishlist: [] });
+    }
+
+    res.status(200).json(wishlist);
+  } catch (error) {
+    console.error("Error fetching wishlist:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
 // Remove item from wishlist
 export const deleteWishlist = async (req, res) => {
   const { userId, productId } = req.params;
