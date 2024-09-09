@@ -17,6 +17,7 @@ const CreateProduct = () => {
   const [selectedGenres, setSelectedGenres] = useState([]);
   const [userId, setUserId] = useState(user?.id || "");
   const [description, setDescription] = useState("");
+  const [stock, setStock] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -89,7 +90,8 @@ const CreateProduct = () => {
       !price ||
       !categoryId ||
       // selectedGenres.length === 0 ||
-      !description
+      !description ||
+      !stock
     ) {
       setError("Please fill all required fields.");
       setLoading(false);
@@ -109,6 +111,7 @@ const CreateProduct = () => {
 
     formData.append("user_id", userId);
     formData.append("description", description);
+    formData.append("stock", stock);
 
     try {
       const response = await axios.post("/api/product/create", formData, {
@@ -122,6 +125,7 @@ const CreateProduct = () => {
       setCategoryId("");
       setSelectedGenres("");
       setDescription("");
+      setStock("");
       setPreviews([]);
     } catch (err) {
       setError(err.response?.data?.error || "Error creating product");
@@ -237,6 +241,17 @@ const CreateProduct = () => {
               <label>{g.name}</label>
             </div>
           ))}
+        </div>
+
+        <div>
+          <label htmlFor="stock">Stock:</label>
+          <input
+            type="number"
+            value={stock}
+            onChange={(e) => setStock(e.target.value)}
+            required
+            className="border border-gray-400 p-1 rounded-sm w-full"
+          />
         </div>
 
         <div>

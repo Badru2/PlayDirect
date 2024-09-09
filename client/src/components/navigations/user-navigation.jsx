@@ -7,9 +7,7 @@ const UserNavigation = () => {
   return (
     <div className="w-full bg-red-600 py-3 px-2 flex justify-between text-white shadow-md sticky top-0 z-50">
       <div className="font-bold stroke-black stroke-1 ">
-        <Link to={"/"}>
-          Play<span>Direct</span>
-        </Link>
+        <Link to={"/"}>PlayDirect</Link>
       </div>
       <div className="flex space-x-4 items-center">
         <Link to={user ? "/cart" : "/login"}>

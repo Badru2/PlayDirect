@@ -16,4 +16,8 @@ const ProductCategory = sequelize.define(
   }
 );
 
+ProductCategory.associate = (models) => {
+  ProductCategory.belongsTo(models.Product, { foreignKey: "category_id" });
+};
+
 export default ProductCategory;

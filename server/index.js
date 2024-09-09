@@ -16,6 +16,7 @@ import adminRoutes from "./routes/Admin/adminRoutes.js";
 import productRoutes from "./routes/Products/productRoutes.js";
 import productGenreRoutes from "./routes/Products/productGenresRoutes.js";
 import productCategoryRoutes from "./routes/Products/productCategoriesRoutes.js";
+import productStocksRoutes from "./routes/Products/productStocksRoutes.js";
 
 import cartRoute from "./routes/cartRoute.js";
 import transactionRoutes from "./routes/transactionRoutes.js";
@@ -56,6 +57,7 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/product", productRoutes);
 app.use("/api/product-genres", productGenreRoutes);
 app.use("/api/product-categories", productCategoryRoutes);
+app.use("/api/product-stocks", productStocksRoutes);
 
 app.use("/api/cart", cartRoute);
 app.use("/api/transaction", transactionRoutes);

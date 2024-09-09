@@ -4,15 +4,18 @@ import { fileURLToPath } from "node:url";
 import fs from "fs";
 import Product from "../../models/Product.js";
 import date from "date-and-time";
+import Stock from "../../models/Stock.js";
+import ProductCategory from "../../models/ProductCategory.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export const createProducts = async (req, res) => {
-  const { name, price, category_id, genre_id, user_id, description } = req.body;
+  const { name, price, category_id, genre_id, user_id, description, stock } =
+    req.body;
   const now = new Date();
   const dateNow = date.format(now, "YYYY-MM-DD HH:mm:ss");
 
-  if (!name || !price || !category_id || !user_id || !description) {
+  if (!name || !price || !category_id || !user_id || !description || !stock) {
     return res.status(400).json({ error: "All fields are required" });
   }
 
@@ -67,6 +70,18 @@ export const createProducts = async (req, res) => {
       message: "Product created successfully",
       product: newProduct,
     });
+
+    if (newProduct) {
+      await Stock.create({
+        user_id: newProduct.user_id,
+        product_id: newProduct.id,
+        quantity: stock,
+        created_at: dateNow,
+        updated_at: dateNow,
+      });
+
+      console.log("Stock created successfully");
+    }
   } catch (error) {
     console.error("Error creating product:", error.message);
     res.status(500).json({ error: "Server error" });
@@ -75,7 +90,14 @@ export const createProducts = async (req, res) => {
 
 export const getProducts = async (req, res) => {
   try {
-    const products = await Product.findAll({});
+    const products = await Product.findAll({
+      // include: [
+      //   {
+      //     model: ProductCategory,
+      //     attributes: ["name"],
+      //   },
+      // ],
+    });
     res.json(products);
   } catch (error) {
     console.error("Error fetching products:", error.message);

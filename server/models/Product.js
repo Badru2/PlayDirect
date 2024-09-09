@@ -3,6 +3,8 @@ import { DataTypes } from "sequelize";
 import sequelize from "../db.js";
 import Cart from "./Cart.js";
 import Wishlist from "./Wishlist.js";
+import Stock from "./Stock.js";
+import ProductCategory from "./ProductCategory.js";
 
 const Product = sequelize.define(
   "Product",
@@ -53,5 +55,7 @@ const Product = sequelize.define(
 Cart.belongsTo(Product, { foreignKey: "product_id" });
 Wishlist.belongsTo(Product, { foreignKey: "product_id" });
 Product.hasMany(Cart, { foreignKey: "product_id" });
+Stock.belongsTo(Product, { foreignKey: "product_id" });
+ProductCategory.hasMany(Product, { foreignKey: "category_id" });
 
 export default Product;

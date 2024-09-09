@@ -17,6 +17,8 @@ import OrderList from "../../pages/user/order-list";
 import DetailOrder from "../../pages/user/detail-order";
 import Wishlist from "../../pages/user/wishlist";
 import AdminPage from "../../pages/super-admin/admin";
+import CreateProductPages from "../../pages/admin/product";
+import TransactionPages from "../../pages/admin/transaction";
 
 function CustomLayout() {
   const { user } = useAuth(); // Ensure useAuth is correctly providing user
@@ -38,6 +40,7 @@ function CustomLayout() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+
         <Route
           path="/admin/dashboard"
           element={
@@ -47,6 +50,25 @@ function CustomLayout() {
             />
           }
         />
+        <Route
+          path="/admin/products"
+          element={
+            <ProtectedRoute
+              element={<CreateProductPages />}
+              allowedRoles={["admin"]}
+            />
+          }
+        />
+        <Route
+          path="/admin/transactions"
+          element={
+            <ProtectedRoute
+              element={<TransactionPages />}
+              allowedRoles={["admin"]}
+            />
+          }
+        />
+
         <Route
           path="/superAdmin/admin"
           element={
@@ -65,15 +87,7 @@ function CustomLayout() {
             />
           }
         />
-        <Route
-          path="/"
-          element={
-            <ProtectedRoute
-              element={<UserDashboard />}
-              allowedRoles={["user"]}
-            />
-          }
-        />
+        <Route path="/" element={<UserDashboard />} />
         <Route path="/product/:id" element={<ProductDetails />} />
         <Route path="/admin/edit/:id" element={<EditAdmin />} />
         <Route
