@@ -19,6 +19,9 @@ const knexConfig = {
     migrations: {
       directory: "./migrations", // Directory to store migration files
     },
+    seeds: {
+      directory: "./seeds", // Directory to store seed files
+    },
   },
 
   staging: {

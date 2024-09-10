@@ -9,10 +9,18 @@ export async function up(knex) {
     table.decimal("price", 10, 2).notNullable();
     table.json("images"); // Change from string to json
     table.integer("category_id").unsigned();
-    table.foreign("category_id").references("id").inTable("products_category");
+    table
+      .foreign("category_id")
+      .references("id")
+      .inTable("products_category")
+      .onDelete("CASCADE");
     table.json("genre_id"); // Changed from integer to JSON
     table.integer("user_id").unsigned();
-    table.foreign("user_id").references("id").inTable("users");
+    table
+      .foreign("user_id")
+      .references("id")
+      .inTable("users")
+      .onDelete("CASCADE");
     table.text("description");
     table.integer("clicked").defaultTo(0);
     table.timestamps();

@@ -12,6 +12,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 import authRoutes from "./routes/authRoute.js";
 import adminRoutes from "./routes/Admin/adminRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
 
 import productRoutes from "./routes/Products/productRoutes.js";
 import productGenreRoutes from "./routes/Products/productGenresRoutes.js";
@@ -52,6 +53,7 @@ app.use("/api", authRoutes);
 
 // Admin routes
 app.use("/api/admin", adminRoutes);
+app.use("/api/user", userRoutes);
 
 // products routes
 app.use("/api/product", productRoutes);

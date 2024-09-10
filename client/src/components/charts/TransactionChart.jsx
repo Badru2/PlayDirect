@@ -1,9 +1,29 @@
 import React from "react";
-import { Pie } from "react-chartjs-2";
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+import { Line } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  LineElement,
+  PointElement,
+  CategoryScale,
+  LinearScale,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import dayjs from "dayjs";
+import weekOfYear from "dayjs/plugin/weekOfYear"; // To get week number of the year
 
 // Register chart.js components
-ChartJS.register(ArcElement, Tooltip, Legend);
+ChartJS.register(
+  LineElement,
+  PointElement,
+  CategoryScale,
+  LinearScale,
+  Tooltip,
+  Legend
+);
+
+// Add weekOfYear plugin to dayjs
+dayjs.extend(weekOfYear);
 
 const TransactionChart = ({ transactions }) => {
   // Filter transactions by status "DELIVERED"
@@ -11,46 +31,31 @@ const TransactionChart = ({ transactions }) => {
     (transaction) => transaction.status === "delivered"
   );
 
-  // Prepare chart data to show a count of transactions by product_name
-  const productCounts = deliveredTransactions.reduce((counts, transaction) => {
-    transaction.products.forEach((product) => {
-      counts[product.product_name] = (counts[product.product_name] || 0) + 1;
-    });
-    return counts;
-  }, {});
+  // Prepare chart data to show count of transactions per week
+  const transactionCountsByWeek = deliveredTransactions.reduce(
+    (counts, transaction) => {
+      const week = dayjs(transaction.date).week(); // Get the week number
+      counts[week] = (counts[week] || 0) + 1;
+      return counts;
+    },
+    {}
+  );
 
-  const productLabels = Object.keys(productCounts); // product_names as labels
-  const productData = Object.values(productCounts); // counts of each product
+  const weekLabels = Object.keys(transactionCountsByWeek).sort(); // Sort week numbers
+  const transactionData = weekLabels.map(
+    (week) => transactionCountsByWeek[week]
+  ); // Counts per week
 
   const chartData = {
-    labels: productLabels.map((name) => `Product Name: ${name}`), // Display product_name as label
+    labels: weekLabels.map((week) => `Week ${week}`), // Weeks as labels
     datasets: [
       {
-        label: "Transactions by Product",
-        data: productData,
-        backgroundColor: [
-          // "#FFCE56",
-          // "#36A2EB",
-          // "#FF6384",
-          // "#4BC0C0",
-          // "#9966FF",
-          // "#FF9F40",
-          "#F1F1F1",
-          "#F1F1F1",
-          "#F1F1F1",
-          "#F1F1F1",
-          "#F1F1F1",
-          "#F1F1F1",
-        ],
-        borderColor: ["#000000"],
-        hoverBackgroundColor: [
-          "#FFCE56",
-          "#36A2EB",
-          "#FF6384",
-          "#4BC0C0",
-          "#9966FF",
-          "#FF9F40",
-        ],
+        label: "Transactions per Week",
+        data: transactionData, // Transaction counts per week
+        borderColor: "#36A2EB",
+        backgroundColor: "rgba(54, 162, 235, 0.2)",
+        pointBackgroundColor: "#FF6384",
+        fill: true,
       },
     ],
   };
@@ -59,17 +64,32 @@ const TransactionChart = ({ transactions }) => {
     responsive: true,
     plugins: {
       legend: {
-        display: false,
+        display: true,
         position: "top",
       },
       title: {
         display: true,
-        text: "Transactions Distribution by Product",
+        text: "Transactions Distribution by Week",
+      },
+    },
+    scales: {
+      x: {
+        title: {
+          display: true,
+          text: "Week Number",
+        },
+      },
+      y: {
+        title: {
+          display: true,
+          text: "Transaction Count",
+        },
+        beginAtZero: true,
       },
     },
   };
 
-  return <Pie data={chartData} options={chartOptions} />;
+  return <Line data={chartData} options={chartOptions} />;
 };
 
 export default TransactionChart;

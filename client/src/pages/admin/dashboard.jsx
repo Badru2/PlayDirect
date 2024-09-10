@@ -57,7 +57,7 @@ const AdminDashboard = () => {
       </div>
       <div className="w-4/5 p-4">
         <div>
-          <div className="w-1/4 shadow-md p-3 bg-white">
+          <div className="w-1/2 shadow-md p-3 bg-white">
             <TransactionChart transactions={transactions} />
           </div>
         </div>

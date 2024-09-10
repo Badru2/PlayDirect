@@ -1,0 +1,92 @@
+[
+    {
+        "name": "Product 1",
+        "price": 215851,
+        "category_id": 5,
+        "genre_id": 2,
+        "user_id": 5,
+        "description": "Description for Product 1",
+        "stock": 11
+    },
+    {
+        "name": "Product 2",
+        "price": 98484,
+        "category_id": 2,
+        "genre_id": 2,
+        "user_id": 1,
+        "description": "Description for Product 2",
+        "stock": 80
+    },
+    {
+        "name": "Product 3",
+        "price": 291422,
+        "category_id": 4,
+        "genre_id": 1,
+        "user_id": 4,
+        "description": "Description for Product 3",
+        "stock": 89
+    },
+    {
+        "name": "Product 4",
+        "price": 399966,
+        "category_id": 5,
+        "genre_id": 5,
+        "user_id": 1,
+        "description": "Description for Product 4",
+        "stock": 69
+    },
+    {
+        "name": "Product 5",
+        "price": 398737,
+        "category_id": 1,
+        "genre_id": 2,
+        "user_id": 2,
+        "description": "Description for Product 5",
+        "stock": 87
+    },
+    {
+        "name": "Product 6",
+        "price": 182384,
+        "category_id": 5,
+        "genre_id": 3,
+        "user_id": 4,
+        "description": "Description for Product 6",
+        "stock": 42
+    },
+    {
+        "name": "Product 7",
+        "price": 411659,
+        "category_id": 4,
+        "genre_id": 4,
+        "user_id": 5,
+        "description": "Description for Product 7",
+        "stock": 47
+    },
+    {
+        "name": "Product 8",
+        "price": 149114,
+        "category_id": 5,
+        "genre_id": 2,
+        "user_id": 1,
+        "description": "Description for Product 8",
+        "stock": 64
+    },
+    {
+        "name": "Product 9",
+        "price": 70103,
+        "category_id": 1,
+        "genre_id": 5,
+        "user_id": 2,
+        "description": "Description for Product 9",
+        "stock": 53
+    },
+    {
+        "name": "Product 10",
+        "price": 404558,
+        "category_id": 5,
+        "genre_id": 1,
+        "user_id": 2,
+        "description": "Description for Product 10",
+        "stock": 72
+    }
+]
