@@ -8,7 +8,7 @@ const TransactionPages = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [transactions, setTransactions] = useState([]);
-  const socket = io(`:${import.meta.env.REACT_APP_SOCKET_PORT}`); // Connect to the WebSocket server
+  const socket = io(`:${import.meta.env.VITE_SOCKET_PORT}`); // Connect to the WebSocket server
 
   // Fetch transactions
   const fetchTransaction = async () => {
@@ -155,8 +155,14 @@ const TransactionPages = () => {
                       <div key={index} className="space-y-1">
                         <div>
                           <img
-                            src={"/images/products/" + product.image}
-                            alt=""
+                            src={`http://${
+                              import.meta.env.VITE_IP_HOST ||
+                              import.meta.env.VITE_CLOUDFLARE_IP ||
+                              import.meta.env.SERVER_HOST
+                            }:${
+                              import.meta.env.VITE_SERVER_PORT || 8080
+                            }/public/images/products/${product.image}`}
+                            alt={product.product_name}
                             className="max-w-52 "
                           />
                         </div>

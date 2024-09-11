@@ -25,21 +25,24 @@ export const createProducts = async (req, res) => {
       ? req.files.images
       : [req.files.images];
 
-    const targetDir = path.join(
-      __dirname,
-      "../../../client/public/images/products"
-    );
+    // Ensure the target directory is inside the public directory for serving
+    const targetDir = path.join(__dirname, "../../../public/images/products");
 
     try {
+      // Ensure the directory exists
       await fs.promises.mkdir(targetDir, { recursive: true });
 
+      // Process each image file
       for (const imageFile of images) {
-        const dateNow = Date.now();
-        const imagePath = path.join(targetDir, `${dateNow}-${imageFile.name}`);
+        const timestamp = Date.now();
+        const imageFileName = `${timestamp}-${imageFile.name}`;
+        const imagePath = path.join(targetDir, imageFileName);
 
         try {
+          // Move the file to the target directory
           await imageFile.mv(imagePath);
-          imagePaths.push(`${dateNow}-${imageFile.name}`);
+          // Store the relative path to the image (which will be publicly accessible)
+          imagePaths.push(`/images/products/${imageFileName}`);
         } catch (error) {
           console.error("File upload error:", error.message);
           return res.status(500).json({ error: "File upload failed" });
@@ -54,6 +57,7 @@ export const createProducts = async (req, res) => {
   }
 
   try {
+    // Create the product with image paths
     const newProduct = await Product.create({
       name,
       price,
@@ -71,6 +75,7 @@ export const createProducts = async (req, res) => {
       product: newProduct,
     });
 
+    // Create stock entry if the product is created successfully
     if (newProduct) {
       await Stock.create({
         user_id: newProduct.user_id,

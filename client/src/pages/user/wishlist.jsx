@@ -7,7 +7,7 @@ import { Link, useNavigate } from "react-router-dom";
 const Wishlist = () => {
   const { user } = useAuth();
   const [userId, setUserId] = useState("");
-  const [wishlists, setWishlists] = useState([]);
+  const [wishlists, setWishlists] = useState([]); // Initialize as an empty array
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -26,10 +26,10 @@ const Wishlist = () => {
           const wishlistResponse = await axios.get(
             `/api/wishlist/show?userId=${fetchedUserId}`
           );
-          const wishlistItemsData = wishlistResponse.data;
-
-          console.log("wishlistItemsData", wishlistItemsData);
-          // Ensure that the response is an array
+          // Ensure wishlistItemsData is an array
+          const wishlistItemsData = Array.isArray(wishlistResponse.data)
+            ? wishlistResponse.data
+            : []; // Default to an empty array if not an array
           setWishlists(wishlistItemsData);
         }
       } catch (error) {
@@ -42,13 +42,12 @@ const Wishlist = () => {
   };
 
   useEffect(() => {
-    fetchUserIdAndWishlist();
-  }, [user]);
-
-  // Redirect to login if user is not authenticated
-  if (!user) {
-    return navigate("/login");
-  }
+    if (!user) {
+      navigate("/login");
+    } else {
+      fetchUserIdAndWishlist();
+    }
+  }, [user, navigate]);
 
   if (loading) return <p>Loading...</p>;
 
@@ -72,7 +71,7 @@ const Wishlist = () => {
                   >
                     <Link to={`/product/${product.id}`}>
                       <img
-                        src={`/images/products/${product.images[0]}`}
+                        src={`/public/images/products/${product.images[0]}`}
                         alt={product.name}
                         className="w-full h-40 object-cover mb-4"
                       />

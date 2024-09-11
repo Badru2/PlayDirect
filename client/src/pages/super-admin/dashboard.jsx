@@ -19,6 +19,7 @@ const SuperAdminDashboard = () => {
       products.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
       setProducts(products);
+
       await fetchUsernames(products);
     } catch (error) {
       setError("Error fetching products");
@@ -96,7 +97,7 @@ const SuperAdminDashboard = () => {
                           {product.images.map((image, index) => (
                             <img
                               key={index}
-                              src={`/images/products/${image}`}
+                              src={`/public/images/products/${image}`}
                               alt={product.name}
                               className="w-12 object-cover h-12"
                             />

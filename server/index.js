@@ -13,6 +13,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 import authRoutes from "./routes/authRoute.js";
 import adminRoutes from "./routes/Admin/adminRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
+import profileRoutes from "./routes/profileRoutes.js";
 
 import productRoutes from "./routes/Products/productRoutes.js";
 import productGenreRoutes from "./routes/Products/productGenresRoutes.js";
@@ -46,7 +47,17 @@ app.use(
   })
 );
 
-app.use("/images", express.static(path.join(__dirname, "images")));
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept"
+  );
+  next();
+});
+
+app.use("/public", express.static(path.join(__dirname, "public")));
+console.log("image path: ", path.join(__dirname, "public"));
 
 // Login and register
 app.use("/api", authRoutes);
@@ -54,6 +65,7 @@ app.use("/api", authRoutes);
 // Admin routes
 app.use("/api/admin", adminRoutes);
 app.use("/api/user", userRoutes);
+app.use("/api/profile", profileRoutes);
 
 // products routes
 app.use("/api/product", productRoutes);

@@ -9,6 +9,8 @@ export async function up(knex) {
     table.string("email").unique();
     table.string("password");
     table.string("avatar");
+    table.string("phone");
+    table.string("address");
     table.string("role");
     table.timestamps();
   });

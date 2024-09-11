@@ -80,7 +80,7 @@ const DetailOrder = () => {
                       className="shadow-md rounded-md p-2 w-72"
                     >
                       <img
-                        src={"/images/products/" + product.image}
+                        src={`/public/images/products/${product.image}`}
                         alt={product.product_name}
                         className="w-full  object-cover"
                       />

@@ -30,6 +30,7 @@ const UserNavigation = () => {
             </g>
           </svg>
         </Link>
+        <Link to={user ? "/wishlist" : "/login"}>Wishlist</Link>
         <Link to={user ? "/order-list" : "/login"}>Order</Link>
         {user ? (
           <button onClick={logout} className="bg-red-500 text-white rounded">

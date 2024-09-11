@@ -170,7 +170,7 @@ const Cart = () => {
                   <div>
                     <Link to={`/product/${product.id}`}>
                       <img
-                        src={`/images/products/${product.images[0]}`}
+                        src={`/public/images/products/${product.images[0]}`}
                         alt={product.name}
                         className="w-20 h-20 object-cover border-2 rounded-md"
                       />

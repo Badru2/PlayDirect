@@ -20,6 +20,7 @@ import AdminPage from "../../pages/super-admin/admin";
 import CreateProductPages from "../../pages/admin/product";
 import TransactionPages from "../../pages/admin/transaction";
 import AdminUserPage from "../../pages/admin/user";
+import UserProfile from "../../pages/user/profile";
 
 function CustomLayout() {
   const { user } = useAuth(); // Ensure useAuth is correctly providing user
@@ -120,6 +121,12 @@ function CustomLayout() {
           }
         />
         <Route path="/wishlist" element={<Wishlist />} />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute element={<UserProfile />} allowedRoles={["user"]} />
+          }
+        />
       </Routes>
     </Router>
   );

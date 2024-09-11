@@ -53,7 +53,7 @@ const ProductDetails = () => {
                     }`}
                   >
                     <img
-                      src={`/images/products/${image}`}
+                      src={`/public/images/products/${image}`}
                       alt={product.name}
                       className="w-full object-cover max-h-80"
                     />
@@ -64,7 +64,7 @@ const ProductDetails = () => {
                 {product.images.map((image, index) => (
                   <img
                     key={index}
-                    src={`/images/products/${image}`}
+                    src={`/public/images/products/${image}`}
                     alt={product.name}
                     className={`w-16 h-16 object-cover rounded-md cursor-pointer ${
                       index === currentSlide

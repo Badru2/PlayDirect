@@ -95,7 +95,7 @@ const UserDashboard = () => {
     <div>
       <UserNavigation />
       <div className="mx-auto max-w-7xl mt-4">
-        <div className="grid grid-cols-6 gap-4">
+        <div className="grid lg:grid-cols-6 grid-cols-2 gap-4 m-3 lg:m-0">
           {products.map((product) => {
             // Format the price to Indonesian Rupiah currency
             const formattedPrice = new Intl.NumberFormat("id-ID", {
@@ -106,14 +106,17 @@ const UserDashboard = () => {
             const isInWishlist = wishlist.includes(product.id);
 
             return (
-              <div key={product.id} className="shadow-md bg-white rounded-sm">
+              <div
+                key={product.id}
+                className="shadow-md bg-white rounded-sm mx-auto"
+              >
                 <div className="carousel w-full bg-blue-200">
                   {product.images.map((image, index) => (
                     <div key={index} className="carousel-item relative w-full">
                       <img
-                        src={`/images/products/${image}`}
+                        src={`/public/images/products/${image}`}
                         alt={product.name}
-                        className="w-full object-cover h-48"
+                        className="w-full object-cover lg:h-48 sm:h-80"
                       />
                     </div>
                   ))}

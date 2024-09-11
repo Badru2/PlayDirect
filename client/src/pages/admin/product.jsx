@@ -5,7 +5,7 @@ import axios from "axios";
 
 const CreateProductPages = () => {
   const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const [products, setProducts] = useState([]);
 
@@ -15,6 +15,7 @@ const CreateProductPages = () => {
 
       console.log(response.data);
       setProducts(response.data);
+      setLoading(false);
     } catch (error) {
       console.error("Error fetching product:", error);
       setError("Error fetching product");
