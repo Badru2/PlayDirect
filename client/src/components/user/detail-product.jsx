@@ -2,12 +2,16 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import UserNavigation from "../navigations/user-navigation";
+import { useAuth } from "../../hooks/useAuth";
 
 const ProductDetails = () => {
   const { id } = useParams(); // Get the product ID from the URL
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [currentSlide, setCurrentSlide] = useState(0); // Track the current slide index
+  const [quantity, setQuantity] = useState(1);
+  const [userId, setUserId] = useState("");
+  const { user } = useAuth();
 
   useEffect(() => {
     // Fetch product details by ID
@@ -22,6 +26,19 @@ const ProductDetails = () => {
       }
     };
 
+    const fetchUserId = async () => {
+      try {
+        const response = await axios.get(
+          `/api/profile/show?email=${user.email}`
+        );
+        console.log(response.data.id);
+        setUserId(response.data.id);
+      } catch (error) {
+        console.error("Error fetching user:", error);
+      }
+    };
+
+    fetchUserId();
     fetchProduct();
   }, [id]);
 
@@ -35,6 +52,22 @@ const ProductDetails = () => {
 
   const handleSlideChange = (index) => {
     setCurrentSlide(index);
+  };
+
+  const handleAddToCart = async (e) => {
+    e.preventDefault();
+
+    try {
+      const response = await axios.post("/api/cart/add", {
+        userId: userId,
+        productId: product.id,
+        quantity,
+      });
+      console.log(response.data);
+      setQuantity(1);
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+    }
   };
 
   return (
@@ -78,10 +111,71 @@ const ProductDetails = () => {
             </div>
           </div>
 
-          <div className="px-3 pb-3 col-span-2 bg-white shadow-md">
-            <h1 className="text-xl font-bold">{product.name}</h1>
-            <p>{formattedPrice}</p>
-            <p>{product.description}</p>
+          <div className="px-3 pb-3 col-span-2 bg-white shadow-md space-y-3 pt-4">
+            <div className="text-2xl font-bold">{product.name}</div>
+            <div className="text-3xl font-bold">{formattedPrice}</div>
+            <div>{product.description}</div>
+          </div>
+
+          <div>
+            <div className="bg-white shadow-md p-5">
+              <div className="flex items-center space-x-3 border-b pb-3 border-gray-400">
+                <img
+                  src={`/public/images/products/${product.images[0]}`}
+                  alt=""
+                  className="h-14 w-14 object-cover rounded-sm"
+                />
+                <div>{product.name}</div>
+              </div>
+
+              <div className="mt-4">
+                <form onSubmit={handleAddToCart} className="space-y-7">
+                  <div className="flex items-center">
+                    <div
+                      onClick={() => quantity > 1 && setQuantity(quantity - 1)}
+                      className="border h-8 w-8 border-black flex items-center justify-center font-bold rounded-sm cursor-pointer"
+                    >
+                      -
+                    </div>
+
+                    <input
+                      type="text"
+                      value={quantity}
+                      className="h-8 w-16 text-center"
+                      accept="number"
+                      onChange={(e) => setQuantity(e.target.value)}
+                      min={1}
+                    />
+
+                    <div
+                      onClick={() => setQuantity(quantity + 1)}
+                      className="border h-8 w-8 font-bold border-black rounded-sm cursor-pointer flex items-center justify-center"
+                    >
+                      +
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      Subtotal:
+                      <div className="font-bold text-xl">
+                        {Intl.NumberFormat("id-ID", {
+                          style: "currency",
+                          currency: "IDR",
+                        }).format(quantity * product.price)}
+                      </div>
+                    </div>
+
+                    <button
+                      type="submit"
+                      className="bg-blue-500 text-white w-full py-2 rounded font-bold"
+                    >
+                      Add To Cart
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
           </div>
         </div>
       </div>

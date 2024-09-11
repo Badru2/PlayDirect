@@ -27,7 +27,10 @@ const CreateProduct = () => {
     if (user?.email) {
       axios
         .get(`/api/admin/get/id?email=${user.email}`)
-        .then((response) => setUserId(response.data.id))
+        .then((response) => {
+          setUserId(response.data.id);
+          console.log(response.data.id);
+        })
         .catch((err) => {
           setError("Error fetching user ID");
           console.error("Error fetching user ID:", err);
@@ -79,20 +82,34 @@ const CreateProduct = () => {
     );
   };
 
+  // Function to format the price with commas
+  const formatPrice = (value) => {
+    // Remove all non-digit characters (except for decimal point)
+    let cleanValue = value.replace(/[^0-9.]/g, "");
+
+    // Split the integer and decimal parts if a decimal point exists
+    const parts = cleanValue.split(".");
+    const integerPart = parts[0];
+    const decimalPart = parts[1] ? `.${parts[1]}` : "";
+
+    // Format the integer part with commas
+    const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+    return formattedInteger + decimalPart;
+  };
+
+  const handlePriceChange = (e) => {
+    const value = e.target.value;
+    setPrice(formatPrice(value)); // Format and set the price value
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
     // Validate that required fields are filled
-    if (
-      !name ||
-      !price ||
-      !categoryId ||
-      // selectedGenres.length === 0 ||
-      !description ||
-      !stock
-    ) {
+    if (!name || !price || !categoryId || !description || !stock) {
       setError("Please fill all required fields.");
       setLoading(false);
       return;
@@ -100,13 +117,13 @@ const CreateProduct = () => {
 
     const formData = new FormData();
     formData.append("name", name);
-    formData.append("price", price);
+    formData.append("price", price.replace(/,/g, "")); // Remove commas for backend
     images.forEach((image) => formData.append("images", image));
     formData.append("category_id", categoryId);
 
     // Append genres correctly
     selectedGenres.forEach((genreId) => {
-      formData.append("genre_id", genreId); // Notice the '[]' to handle multiple values
+      formData.append("genre_id", genreId);
     });
 
     formData.append("user_id", userId);
@@ -123,7 +140,7 @@ const CreateProduct = () => {
       setPrice("");
       setImages([]);
       setCategoryId("");
-      setSelectedGenres("");
+      setSelectedGenres([]);
       setDescription("");
       setStock("");
       setPreviews([]);
@@ -156,9 +173,9 @@ const CreateProduct = () => {
         <div>
           <label htmlFor="price">Price:</label>
           <input
-            type="number"
+            type="text"
             value={price}
-            onChange={(e) => setPrice(e.target.value)}
+            onChange={handlePriceChange} // Update price with commas as user types
             required
             id="price"
             className="border border-gray-400 p-1 rounded-sm w-full"
@@ -227,7 +244,7 @@ const CreateProduct = () => {
           </select>
         </div>
 
-        <div className={categoryId == "1" ? "" : "hidden"}>
+        <div className={categoryId === "1" ? "" : "hidden"}>
           <label htmlFor="genre">Genre:</label>
           {genres.map((g) => (
             <div key={g.id} className="flex items-center">
@@ -250,6 +267,7 @@ const CreateProduct = () => {
             value={stock}
             onChange={(e) => setStock(e.target.value)}
             required
+            id="stock"
             className="border border-gray-400 p-1 rounded-sm w-full"
           />
         </div>
@@ -257,24 +275,24 @@ const CreateProduct = () => {
         <div>
           <label htmlFor="description">Description:</label>
           <textarea
-            id="description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            rows="5"
-            className="border border-gray-400 p-1 rounded-sm w-full"
+            required
+            id="description"
+            className="border border-gray-400 p-1 rounded-sm w-full h-32"
           ></textarea>
         </div>
-
-        {error && <div className="text-red-500 mb-2">{error}</div>}
-
-        <button
-          type="submit"
-          className="bg-blue-500 text-white px-4 py-1 rounded-sm"
-          disabled={loading}
-        >
-          {loading ? "Creating..." : "Create"}
-        </button>
       </div>
+
+      {error && <p className="text-red-500 col-span-2">{error}</p>}
+
+      <button
+        type="submit"
+        className="bg-blue-500 text-white px-4 py-2 rounded-sm col-span-2"
+        disabled={loading}
+      >
+        {loading ? "Creating..." : "Create Product"}
+      </button>
     </form>
   );
 };

@@ -33,8 +33,19 @@ export const updateProfile = async (req, res) => {
     if (address) user.address = address;
 
     // Handle avatar file upload (if any)
-    if (req.file) {
-      user.avatar = `/images/avatar/${req.file.filename}`; // Set the file path
+    if (req.files && req.files.avatar) {
+      const avatarFile = req.files.avatar;
+      const uploadPath = `${avatarFile.name}`;
+
+      // Move the file to the desired folder
+      avatarFile.mv(`./public/images/avatar/${uploadPath}`, (err) => {
+        if (err) {
+          console.error("Error uploading file:", err);
+          return res.status(500).json({ error: "File upload failed" });
+        }
+      });
+
+      user.avatar = uploadPath; // Set the file path in the user object
     }
 
     await user.save(); // Sequelize will handle updatedAt automatically

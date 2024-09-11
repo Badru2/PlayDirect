@@ -95,7 +95,7 @@ const UserProfile = () => {
                   : `https://ui-avatars.com/api/?name=${profile.username}`
               }
               alt={profile.username}
-              className="w-20 h-20 rounded-full"
+              className="w-20 h-20 rounded-full object-cover"
             />
 
             {editMode ? (
