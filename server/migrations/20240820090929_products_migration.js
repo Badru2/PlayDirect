@@ -6,7 +6,7 @@ export async function up(knex) {
   return knex.schema.createTable("products", function (table) {
     table.increments("id").primary();
     table.string("name").notNullable();
-    table.decimal("price", 10, 2).notNullable();
+    table.integer("price").notNullable();
     table.json("images"); // Change from string to json
     table.integer("category_id").unsigned();
     table
@@ -22,6 +22,7 @@ export async function up(knex) {
       .inTable("users")
       .onDelete("CASCADE");
     table.text("description");
+    table.integer("stock");
     table.integer("clicked").defaultTo(0);
     table.timestamps();
   });

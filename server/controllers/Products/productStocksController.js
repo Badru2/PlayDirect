@@ -30,29 +30,29 @@ export const CreateStock = async (req, res) => {
   }
 };
 
-export const getStocks = async (req, res) => {
-  try {
-    const stocks = await Stock.findAll({
-      include: [
-        {
-          model: Product,
-          attributes: [
-            "id",
-            "name",
-            "price",
-            "images",
-            "category_id",
-            "genre_id",
-            "description",
-            "created_at",
-            "updated_at",
-          ],
-        },
-      ],
-    });
-    res.status(200).json({ stocks });
-  } catch (error) {
-    console.error("Error retrieving stocks:", error);
-    res.status(500).json({ error: error.message });
-  }
-};
+// export const getStocks = async (req, res) => {
+//   try {
+//     const stocks = await Stock.findAll({
+//       include: [
+//         {
+//           model: Product,
+//           attributes: [
+//             "id",
+//             "name",
+//             "price",
+//             "images",
+//             "category_id",
+//             "genre_id",
+//             "description",
+//             "created_at",
+//             "updated_at",
+//           ],
+//         },
+//       ],
+//     });
+//     res.status(200).json(stocks);
+//   } catch (error) {
+//     console.error("Error retrieving stocks:", error);
+//     res.status(500).json({ error: error.message });
+//   }
+// };

@@ -149,6 +149,7 @@ const UserProfile = () => {
                   <input
                     type="file"
                     name="avatar"
+                    accept="image/*"
                     onChange={handleFileChange}
                   />
                 </div>
@@ -170,8 +171,8 @@ const UserProfile = () => {
               <div>
                 <p>Name: {profile.username}</p>
                 <p>Email: {profile.email}</p>
-                <p>Phone: {profile.phone}</p>
-                <p>Address: {profile.address}</p>
+                <p>Phone: {profile.phone ? profile.phone : "N/A"}</p>
+                <p>Address: {profile.address ? profile.address : "N/A"}</p>
                 <button
                   className="bg-green-500 text-white p-2 rounded mt-4"
                   onClick={() => setEditMode(true)}

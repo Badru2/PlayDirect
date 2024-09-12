@@ -4,6 +4,8 @@ import {
   getProducts,
   getProductById,
   deleteProduct,
+  getRelatedProducts,
+  updateProduct,
 } from "../../controllers/Products/productController.js";
 
 const router = express.Router();
@@ -11,6 +13,8 @@ const router = express.Router();
 router.post("/create", createProducts);
 router.get("/show", getProducts);
 router.get("/:id", getProductById);
+router.get("/related/:category_id", getRelatedProducts);
+router.put("/update/:id", updateProduct);
 router.delete("/delete/:id", deleteProduct);
 
 export default router;

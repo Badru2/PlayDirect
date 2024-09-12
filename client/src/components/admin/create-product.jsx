@@ -3,6 +3,8 @@ import axios from "axios";
 import getCategoriesProduct from "./get-category-product";
 import getGenreProduct from "./get-genre-product";
 import { useAuth } from "../../hooks/useAuth";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 
 const CreateProduct = () => {
   const { genres } = getGenreProduct();
@@ -157,7 +159,7 @@ const CreateProduct = () => {
       onSubmit={handleSubmit}
       className="p-5 bg-white shadow-md m-4 grid grid-cols-2 gap-3"
     >
-      <div>
+      <div className="space-y-2">
         <div>
           <label htmlFor="name">Name:</label>
           <input
@@ -225,23 +227,37 @@ const CreateProduct = () => {
         </div>
       </div>
 
-      <div>
-        <div>
-          <label htmlFor="category">Category:</label>
-          <select
-            id="category"
-            className="w-full py-2"
-            value={categoryId}
-            onChange={(e) => setCategoryId(e.target.value)}
-            required
-          >
-            <option value="">Select Category</option>
-            {categories.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
+      <div className="space-y-2">
+        <div className="flex space-x-3">
+          <div className="w-1/2">
+            <label htmlFor="category">Category:</label>
+            <select
+              id="category"
+              className="w-full py-1 px-2"
+              value={categoryId}
+              onChange={(e) => setCategoryId(e.target.value)}
+              required
+            >
+              <option value="">Select Category</option>
+              {categories.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="w-1/2">
+            <label htmlFor="stock">Stock:</label>
+            <input
+              type="number"
+              value={stock}
+              onChange={(e) => setStock(e.target.value)}
+              required
+              id="stock"
+              className="border border-gray-400 p-1 rounded-sm w-full"
+            />
+          </div>
         </div>
 
         <div className={categoryId === "1" ? "" : "hidden"}>
@@ -261,26 +277,8 @@ const CreateProduct = () => {
         </div>
 
         <div>
-          <label htmlFor="stock">Stock:</label>
-          <input
-            type="number"
-            value={stock}
-            onChange={(e) => setStock(e.target.value)}
-            required
-            id="stock"
-            className="border border-gray-400 p-1 rounded-sm w-full"
-          />
-        </div>
-
-        <div>
           <label htmlFor="description">Description:</label>
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            required
-            id="description"
-            className="border border-gray-400 p-1 rounded-sm w-full h-32"
-          ></textarea>
+          <ReactQuill value={description} onChange={setDescription} />
         </div>
       </div>
 

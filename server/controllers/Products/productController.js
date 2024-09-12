@@ -8,6 +8,7 @@ import Stock from "../../models/Stock.js";
 import ProductCategory from "../../models/ProductCategory.js";
 import User from "../../models/User.js";
 import ProductGenre from "../../models/ProductGenre.js";
+import ProductUpdateHistory from "../../models/ProductUpdateHistory.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -127,6 +128,7 @@ export const createProducts = async (req, res) => {
         category_id: parsedCategoryId,
         user_id: parsedUserId,
         description,
+        stock: parsedStock,
         created_at: dateNow,
         updated_at: dateNow,
       });
@@ -135,15 +137,6 @@ export const createProducts = async (req, res) => {
       if (genreIds.length > 0) {
         await newProduct.setGenres(genreIds);
       }
-
-      // Create stock entry
-      await Stock.create({
-        user_id: newProduct.user_id,
-        product_id: newProduct.id,
-        quantity: parsedStock,
-        created_at: dateNow,
-        updated_at: dateNow,
-      });
 
       res.status(201).json({
         message: "Product created successfully",
@@ -182,6 +175,45 @@ export const getProducts = async (req, res) => {
   }
 };
 
+export const updateProduct = async (req, res) => {
+  const { id } = req.params;
+  const { name, price, category_id, user_id, genre_id, description, stock } =
+    req.body;
+
+  const now = new Date();
+  const dateNow = date.format(now, "YYYY-MM-DD HH:mm:ss");
+  try {
+    const product = await Product.findByPk(id);
+    if (!product) {
+      return res.status(404).json({ error: "Product not found" });
+    }
+
+    // save history
+    await ProductUpdateHistory.create({
+      user_id: user_id,
+      product_id: id,
+      old_stock: product.stock,
+      new_stock: stock,
+      created_at: dateNow,
+    });
+
+    product.name = name || product.name;
+    product.price = price || product.price;
+    product.category_id = category_id || product.category_id;
+    product.genre_id = genre_id || product.genre_id;
+    product.description = description || product.description;
+    product.stock = stock || product.stock;
+    product.updated_at = new Date();
+
+    await product.save();
+
+    res.json(product);
+  } catch (error) {
+    console.error("Error updating product:", error.message);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
 export const deleteProduct = async (req, res) => {
   const { id } = req.params;
   try {
@@ -214,5 +246,18 @@ export const getProductById = async (req, res) => {
   } catch (error) {
     console.error("Error fetching product:", error.message);
     res.status(500).json({ error: "Server error" });
+  }
+};
+
+export const getRelatedProducts = async (req, res) => {
+  const { category_id } = req.params;
+  try {
+    const relatedProducts = await Product.findAll({
+      where: { category_id },
+      limit: 15,
+    });
+    res.json(relatedProducts);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch related products" });
   }
 };

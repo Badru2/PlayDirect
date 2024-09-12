@@ -5,6 +5,7 @@ import User from "../models/User.js";
 import http from "http";
 import { Server } from "socket.io";
 import dotenv from "dotenv";
+import Product from "../models/Product.js";
 
 dotenv.config({ path: "../.env" });
 
@@ -46,6 +47,15 @@ export const createTransaction = async (req, res) => {
       updated_at: dateNow,
     });
 
+    // update product stock
+    for (const product of products) {
+      const stock = await Product.findByPk(product.product_id);
+      if (stock) {
+        const newStock = stock.stock - product.quantity;
+        await stock.update({ stock: newStock });
+      }
+    }
+
     // Emit event to notify all clients about the new transaction
     io.emit("transactionCreated", newTransaction);
 
@@ -84,6 +94,17 @@ export const updateTransactions = async (req, res) => {
     transaction.status = status;
     transaction.updated_at = dateNow;
     await transaction.save();
+
+    // update product stock
+    if (status === "cancelled") {
+      for (const product of transaction.products) {
+        const stock = await Product.findByPk(product.product_id);
+        if (stock) {
+          const newStock = stock.stock + product.quantity;
+          await stock.update({ stock: newStock });
+        }
+      }
+    }
 
     // Emit event to notify all clients about the updated transaction
     io.emit("transactionUpdated", transaction);

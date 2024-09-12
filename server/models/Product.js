@@ -37,6 +37,14 @@ const Product = sequelize.define(
       type: DataTypes.TEXT,
       allowNull: false,
     },
+    stock: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    clicked: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+    },
     created_at: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,

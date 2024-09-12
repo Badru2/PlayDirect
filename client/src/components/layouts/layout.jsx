@@ -17,7 +17,7 @@ import OrderList from "../../pages/user/order-list";
 import DetailOrder from "../../pages/user/detail-order";
 import Wishlist from "../../pages/user/wishlist";
 import AdminPage from "../../pages/super-admin/admin";
-import CreateProductPages from "../../pages/admin/product";
+import ProductPages from "../../pages/admin/product";
 import TransactionPages from "../../pages/admin/transaction";
 import AdminUserPage from "../../pages/admin/user";
 import UserProfile from "../../pages/user/profile";
@@ -56,7 +56,7 @@ function CustomLayout() {
           path="/admin/products"
           element={
             <ProtectedRoute
-              element={<CreateProductPages />}
+              element={<ProductPages />}
               allowedRoles={["admin"]}
             />
           }
