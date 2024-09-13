@@ -5,6 +5,7 @@ import Cart from "./Cart.js";
 import Wishlist from "./Wishlist.js";
 import Stock from "./Stock.js";
 import ProductCategory from "./ProductCategory.js";
+import ProductUpdateHistory from "./ProductUpdateHistory.js";
 
 const Product = sequelize.define(
   "Product",
@@ -65,5 +66,6 @@ Wishlist.belongsTo(Product, { foreignKey: "product_id" });
 Product.hasMany(Cart, { foreignKey: "product_id" });
 Stock.belongsTo(Product, { foreignKey: "product_id" });
 ProductCategory.hasMany(Product, { foreignKey: "category_id" });
+ProductUpdateHistory.belongsTo(Product, { foreignKey: "product_id" });
 
 export default Product;

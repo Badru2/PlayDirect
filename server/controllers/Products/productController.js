@@ -175,6 +175,39 @@ export const getProducts = async (req, res) => {
   }
 };
 
+export const getHistoryProduct = async (req, res) => {
+  try {
+    const products = await ProductUpdateHistory.findAll({
+      include: [
+        {
+          model: User,
+          attributes: ["username"],
+        },
+        {
+          model: Product,
+          attributes: [
+            "id",
+            "name",
+            "price",
+            "images",
+            "category_id",
+            "user_id",
+            "genre_id",
+            "description",
+            "stock",
+            "created_at",
+            "updated_at",
+          ],
+        },
+      ],
+    });
+    res.json(products);
+  } catch (error) {
+    console.error("Error fetching products:", error.message);
+    res.status(500).json({ error: "Error fetching products" });
+  }
+};
+
 export const updateProduct = async (req, res) => {
   const { id } = req.params;
   const { name, price, category_id, user_id, genre_id, description, stock } =

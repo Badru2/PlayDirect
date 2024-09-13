@@ -117,7 +117,7 @@ export const updateTransactions = async (req, res) => {
 };
 
 // Starting the server with Socket.IO
-const PORT = process.env.REACT_APP_SOCKET_PORT;
+const PORT = process.env.VITE_SOCKET_PORT;
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

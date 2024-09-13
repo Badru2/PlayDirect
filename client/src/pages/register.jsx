@@ -66,53 +66,66 @@ const Register = () => {
   };
 
   return (
-    <div className="bg-white p-5 w-1/4 shadow-md mx-auto">
-      <h2 className="text-2xl text-center font-bold">Register</h2>
-      <form onSubmit={handleSubmit} className="space-y-3">
-        <div>
-          <label className="font-bold">Username:</label>
-          <input
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-            className="bg-white w-full border"
-          />
-        </div>
-        <div>
-          <label className="font-bold">Email:</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            className="bg-white w-full border"
-          />
-        </div>
-        <div>
-          <label className="font-bold">Password:</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            className="bg-white w-full border"
-          />
-        </div>
-        <button
-          type="submit"
-          className="bg-blue-500 text-white px-3 py-1 w-full"
-        >
-          Register
-        </button>
-        {message && <p>{message}</p>}
-      </form>
+    <div className="md:flex min-h-screen">
+      <div className="bg-blue-500 w-3/5"></div>
 
-      <div className="text-center">
-        Already have an account? <br />
-        <span className="text-blue-500 font-bold">
-          <Link to="/login">Sign In.</Link>
-        </span>
+      <div className="w-full md:w-2/5 flex flex-col items-center justify-center min-h-screen">
+        <div className="p-5 w-3/4 mx-auto space-y-6">
+          <h2 className="text-3xl text-center font-bold font-serif ">
+            Register To Continue
+          </h2>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-3">
+              <div>
+                <input
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  required
+                  className="bg-gray-100 w-full border rounded-sm py-3"
+                  placeholder="Username"
+                />
+              </div>
+
+              <div>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="bg-gray-100 w-full border rounded-sm py-3"
+                  placeholder="Email"
+                />
+              </div>
+
+              <div>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="bg-gray-100 w-full border rounded-sm py-3"
+                  placeholder="Password"
+                />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              className="bg-blue-500 text-white px-3 py-2 w-full rounded-sm font-bold"
+            >
+              Register
+            </button>
+            {message && <p>{message}</p>}
+          </form>
+
+          <div className="text-center">
+            Already have an account? <br />
+            <span className="text-blue-500 font-bold">
+              <Link to="/login">Sign In.</Link>
+            </span>
+          </div>
+        </div>
       </div>
     </div>
   );

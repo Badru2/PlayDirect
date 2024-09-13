@@ -41,43 +41,58 @@ const Login = () => {
   };
 
   return (
-    <div className="bg-white p-5 w-1/4 shadow-md mx-auto">
-      <h2 className="text-2xl text-center font-bold">Login</h2>
-      <form onSubmit={handleSubmit} className="space-y-3">
-        <div>
-          <label className="font-bold">Email:</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            className="bg-white w-full border"
-          />
-        </div>
-        <div>
-          <label className="font-bold">Password:</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            className="bg-white w-full border"
-          />
-        </div>
-        <button
-          type="submit"
-          className="bg-blue-500 text-white px-4 py-1 font-bold rounded-sm w-full"
-        >
-          Login
-        </button>
-        {message && <p>{message}</p>}
-      </form>
+    <div className="md:flex min-h-screen">
+      <div className="bg-blue-500 w-3/5"></div>
 
-      <div className="text-center">
-        Didn't have an account? <br />
-        <span className="text-blue-500 font-bold">
-          <Link to="/register">Sign Up.</Link>
-        </span>
+      <div className="w-full md:w-2/5 flex flex-col items-center justify-center min-h-screen">
+        <div className="p-5 w-3/4 mx-auto space-y-9">
+          <h2 className="text-3xl text-center font-bold font-serif">
+            Login To Continue
+          </h2>
+          <form onSubmit={handleSubmit} className="space-y-7">
+            <div className="space-y-3 ">
+              <div>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="bg-gray-100 w-full border py-3 border-gray-400 rounded-sm"
+                  placeholder="Email"
+                />
+              </div>
+              <div>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="bg-gray-100 w-full border py-3 border-gray-400 rounded-sm"
+                  placeholder="Password"
+                />
+              </div>
+
+              <div className="flex justify-end">
+                <Link className="text-blue-400 ">Forgot Password?</Link>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              className="bg-blue-500 text-white px-4 py-2 text-lg font-bold rounded-sm w-full"
+            >
+              Login
+            </button>
+            {message && <p>{message}</p>}
+          </form>
+
+          <div className="text-center">
+            Didn't have an account? <br />
+            <span className="text-blue-500 font-bold">
+              <Link to="/register">Sign Up.</Link>
+            </span>
+          </div>
+        </div>
       </div>
     </div>
   );

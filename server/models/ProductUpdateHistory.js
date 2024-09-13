@@ -35,4 +35,11 @@ const ProductUpdateHistory = sequelize.define(
   }
 );
 
+ProductUpdateHistory.associate = (models) => {
+  ProductUpdateHistory.belongsTo(models.User, { foreignKey: "user_id" });
+  ProductUpdateHistory.belongsTo(models.Product, {
+    foreignKey: "product_id",
+  });
+};
+
 export default ProductUpdateHistory;

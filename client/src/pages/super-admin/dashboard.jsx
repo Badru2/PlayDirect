@@ -1,35 +1,37 @@
 import React, { useEffect, useState } from "react";
 import SuperAdminNavigation from "../../components/navigations/super-admin-navigation";
 import axios from "axios";
-
 import { format } from "date-fns";
 
 const SuperAdminDashboard = () => {
   const [products, setProducts] = useState([]);
   const [usernames, setUsernames] = useState({});
-  const [loading, setLoading] = useState(true); // Add loading state
-  const [error, setError] = useState(""); // Add error state
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [usernameLoading, setUsernameLoading] = useState(false);
 
   const getProducts = async () => {
+    setLoading(true);
     try {
-      const response = await axios.get("/api/product/show");
+      const response = await axios.get("/api/product/show/history");
       let products = response.data;
 
-      // Sort products by name in ascending order
+      // Sort products by creation date in descending order
       products.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
-      setProducts(products);
+      await fetchUsernames(products); // Fetch usernames after products
 
-      await fetchUsernames(products);
+      setProducts(products);
     } catch (error) {
       setError("Error fetching products");
-      console.log(error);
+      console.error(error);
     } finally {
-      setLoading(false); // Set loading to false once products are fetched
+      setLoading(false); // End loading state
     }
   };
 
   const fetchUsernames = async (products) => {
+    setUsernameLoading(true); // Start username loading
     const userIds = Array.from(new Set(products.map((p) => p.user_id))).filter(
       Boolean
     );
@@ -52,6 +54,8 @@ const SuperAdminDashboard = () => {
     } catch (error) {
       setError("Error fetching usernames");
       console.error("Error fetching usernames:", error);
+    } finally {
+      setUsernameLoading(false); // End username loading state
     }
   };
 
@@ -66,13 +70,15 @@ const SuperAdminDashboard = () => {
       </div>
 
       <div className="w-4/5 p-5">
-        <div>
-          {loading ? (
-            <p>Loading...</p>
-          ) : error ? (
-            <p>{error}</p>
-          ) : (
-            <div className="w-full mx-auto mt-3 shadow-lg">
+        {loading ? (
+          <p>Loading products...</p>
+        ) : error ? (
+          <p>{error}</p>
+        ) : (
+          <div className="w-full mx-auto mt-3 shadow-lg">
+            {usernameLoading ? (
+              <p>Loading usernames...</p>
+            ) : (
               <table className="table table-md">
                 <thead className="sticky top-0 bg-white h-12">
                   <tr>
@@ -88,17 +94,17 @@ const SuperAdminDashboard = () => {
                     const formattedPrice = new Intl.NumberFormat("id-ID", {
                       style: "currency",
                       currency: "IDR",
-                    }).format(product.price);
+                    }).format(product.Product.price);
 
                     return (
                       <tr key={product.id}>
-                        <td>{product.name}</td>
+                        <td>{product.Product.name}</td>
                         <td className="flex">
-                          {product.images.map((image, index) => (
+                          {product.Product.images.map((image, index) => (
                             <img
                               key={index}
                               src={`/public/images/products/${image}`}
-                              alt={product.name}
+                              alt={product.Product.name}
                               className="w-12 object-cover h-12"
                             />
                           ))}
@@ -113,9 +119,9 @@ const SuperAdminDashboard = () => {
                   })}
                 </tbody>
               </table>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

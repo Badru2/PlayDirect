@@ -155,13 +155,7 @@ const TransactionPages = () => {
                       <div key={index} className="space-y-1">
                         <div>
                           <img
-                            src={`http://${
-                              import.meta.env.VITE_IP_HOST ||
-                              import.meta.env.VITE_CLOUDFLARE_IP ||
-                              import.meta.env.SERVER_HOST
-                            }:${
-                              import.meta.env.VITE_SERVER_PORT || 8080
-                            }/public/images/products/${product.image}`}
+                            src={`/public/images/products/${product.image}`}
                             alt={product.product_name}
                             className="max-w-52 "
                           />

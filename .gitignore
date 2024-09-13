@@ -2,3 +2,4 @@ server/node_modules
 .env
 server/uploads
 client/public/images
+server/public/images

@@ -1,6 +1,7 @@
 // models/User.js
 import { DataTypes } from "sequelize";
 import sequelize from "../db.js";
+import ProductUpdateHistory from "./ProductUpdateHistory.js";
 
 const User = sequelize.define(
   "User",
@@ -41,5 +42,7 @@ const User = sequelize.define(
     timestamps: false,
   }
 );
+
+ProductUpdateHistory.belongsTo(User, { foreignKey: "user_id" });
 
 export default User;

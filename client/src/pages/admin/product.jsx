@@ -1,23 +1,20 @@
-import CreateProduct from "../../components/admin/create-product";
-import AdminNavigation from "../../components/navigations/admin-navigation";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useAuth } from "../../hooks/useAuth";
+import CreateProduct from "../../components/admin/create-product";
+import AdminNavigation from "../../components/navigations/admin-navigation";
+import getCategoriesProduct from "../../components/admin/get-category-product";
 
 const ProductPages = () => {
   const { user } = useAuth();
   const [userId, setUserId] = useState(null);
+  const { categories } = getCategoriesProduct();
 
-  const [name, setName] = useState("");
-  const [price, setPrice] = useState(0);
-  const [category_id, setCategoryId] = useState(0);
-  const [description, setDescription] = useState("");
-  const [stock, setStock] = useState(0);
-
+  const [products, setProducts] = useState([]);
+  const [currentProduct, setCurrentProduct] = useState(null); // State for the product being edited
   const [editMode, setEditMode] = useState(null); // Track the product being edited
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [products, setProducts] = useState([]);
 
   const fetchProduct = async () => {
     try {
@@ -36,11 +33,7 @@ const ProductPages = () => {
     try {
       const response = await axios.put(`/api/product/update/${productId}`, {
         user_id: userId,
-        name: name,
-        price: price,
-        category_id: category_id,
-        description: description,
-        stock: stock,
+        ...currentProduct, // Spread current product state
       });
       console.log("Product updated:", response.data);
       setEditMode(null); // Exit edit mode
@@ -52,12 +45,8 @@ const ProductPages = () => {
 
   // Set values in state when editing a product
   const handleEdit = (product) => {
-    setName(product.name);
-    setPrice(product.price);
-    setCategoryId(product.category_id);
-    setDescription(product.description);
-    setStock(product.stock);
-    setEditMode(product.id);
+    setCurrentProduct({ ...product }); // Set the product to be edited
+    setEditMode(product.id); // Set the product ID being edited
   };
 
   useEffect(() => {
@@ -113,61 +102,29 @@ const ProductPages = () => {
                       <td>{product.name}</td>
                       <td>
                         Rp.{" "}
-                        {Intl.NumberFormat("id-ID", {
-                          currency: "IDR",
-                        }).format(product.price)}
+                        <b>
+                          {Intl.NumberFormat("id-ID", {
+                            currency: "IDR",
+                          }).format(product.price)}
+                        </b>
                       </td>
-                      <td>{product.stock}</td>
+                      <td>
+                        <b>{product.stock}</b>
+                      </td>
                       <td className="space-x-2">
                         <button
                           onClick={() => handleEdit(product)}
                           className="bg-yellow-300 p-2 rounded-md shadow-sm text-white"
                         >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="1em"
-                            height="1em"
-                            viewBox="0 0 24 24"
-                          >
-                            <g
-                              fill="none"
-                              stroke="currentColor"
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                              stroke-width="2"
-                            >
-                              <path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                              <path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z" />
-                            </g>
-                          </svg>
+                          Edit
                         </button>
 
                         <button className="bg-blue-500 p-2 rounded-md shadow-sm text-white">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="1em"
-                            height="1em"
-                            viewBox="0 0 16 16"
-                          >
-                            <path
-                              fill="currentColor"
-                              d="m8.93 6.588l-2.29.287l-.082.38l.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319c.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246c-.275 0-.375-.193-.304-.533zM9 4.5a1 1 0 1 1-2 0a1 1 0 0 1 2 0"
-                            />
-                          </svg>
+                          Info
                         </button>
 
                         <button className="bg-red-500 p-2 rounded-md shadow-sm text-white">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="1em"
-                            height="1em"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              fill="currentColor"
-                              d="M16 9v10H8V9zm-1.5-6h-5l-1 1H5v2h14V4h-3.5zM18 7H6v12c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2z"
-                            />
-                          </svg>
+                          Delete
                         </button>
                       </td>
                     </tr>
@@ -181,40 +138,88 @@ const ProductPages = () => {
                                 <label htmlFor="name">Name:</label>
                                 <input
                                   type="text"
-                                  value={name}
-                                  onChange={(e) => setName(e.target.value)}
+                                  value={currentProduct?.name || ""}
+                                  onChange={(e) =>
+                                    setCurrentProduct({
+                                      ...currentProduct,
+                                      name: e.target.value,
+                                    })
+                                  }
                                 />
                               </div>
 
-                              <div className="flex flex-col ">
+                              <div className="flex flex-col">
                                 <label htmlFor="price">Price:</label>
                                 <input
                                   type="number"
-                                  value={price}
-                                  onChange={(e) => setPrice(e.target.value)}
+                                  value={currentProduct?.price || 0}
+                                  onChange={(e) =>
+                                    setCurrentProduct({
+                                      ...currentProduct,
+                                      price: e.target.value,
+                                    })
+                                  }
                                 />
                               </div>
                             </div>
 
-                            <div className="w-1/2">
-                              <div>
-                                <div className="flex flex-col">
+                            <div className="w-1/2 flex flex-col justify-between">
+                              <div className="flex space-x-3">
+                                <div className="w-1/2 flex flex-col">
+                                  <label htmlFor="category">Category</label>
+                                  <select
+                                    value={currentProduct?.category_id || 0}
+                                    onChange={(e) =>
+                                      setCurrentProduct({
+                                        ...currentProduct,
+                                        category_id: Number(e.target.value),
+                                      })
+                                    }
+                                    className="w-full py-[10px] px-2"
+                                  >
+                                    <option value="">Select Category</option>
+                                    {categories.map((category) => (
+                                      <option
+                                        key={category.id}
+                                        value={category.id}
+                                      >
+                                        {category.name}
+                                      </option>
+                                    ))}
+                                  </select>
+                                </div>
+
+                                <div className="w-1/2 flex flex-col">
                                   <label htmlFor="stock">Stock:</label>
                                   <input
                                     type="number"
-                                    value={stock}
-                                    onChange={(e) => setStock(e.target.value)}
+                                    value={currentProduct?.stock || 0}
+                                    onChange={(e) =>
+                                      setCurrentProduct({
+                                        ...currentProduct,
+                                        stock: e.target.value,
+                                      })
+                                    }
                                   />
                                 </div>
                               </div>
-                              <button
-                                onClick={() => handleUpdateProduct(product.id)}
-                              >
-                                Save
-                              </button>
-                              <button onClick={() => setEditMode(null)}>
-                                Cancel
-                              </button>
+
+                              <div className="flex space-x-3">
+                                <button
+                                  onClick={() =>
+                                    handleUpdateProduct(currentProduct.id)
+                                  }
+                                  className="bg-blue-500 text-white px-4 py-1 rounded-sm "
+                                >
+                                  Save
+                                </button>
+                                <button
+                                  onClick={() => setEditMode(null)}
+                                  className="bg-red-500 text-white px-4 py-1 rounded-sm"
+                                >
+                                  Cancel
+                                </button>
+                              </div>
                             </div>
                           </div>
                         </td>
