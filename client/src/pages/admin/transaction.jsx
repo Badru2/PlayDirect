@@ -140,15 +140,15 @@ const TransactionPages = () => {
                     <div className="flex items-center">
                       Time:{" "}
                       <b>
-                        {transaction.created_at
-                          ? format(new Date(transaction.created_at), "HH:mm:ss")
+                        {transaction.updated_at
+                          ? format(new Date(transaction.updated_at), "HH:mm:ss")
                           : "N/A"}
                       </b>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex space-x-2 border-t-2 pt-2">
+                <div className="flex space-x-2 border-t-2 pt-2 flex-wrap">
                   {Array.isArray(transaction.products) &&
                   transaction.products.length > 0 ? (
                     transaction.products.map((product, index) => (

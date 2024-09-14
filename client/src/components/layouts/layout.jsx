@@ -21,6 +21,7 @@ import ProductPages from "../../pages/admin/product";
 import TransactionPages from "../../pages/admin/transaction";
 import AdminUserPage from "../../pages/admin/user";
 import UserProfile from "../../pages/user/profile";
+import SuperAdminTransactionPage from "../../pages/super-admin/transaction";
 
 function CustomLayout() {
   const { user } = useAuth(); // Ensure useAuth is correctly providing user
@@ -99,6 +100,16 @@ function CustomLayout() {
             />
           }
         />
+        <Route
+          path="/superAdmin/transaction"
+          element={
+            <ProtectedRoute
+              element={<SuperAdminTransactionPage />}
+              allowedRoles={["superAdmin"]}
+            />
+          }
+        />
+
         <Route path="/" element={<UserDashboard />} />
         <Route path="/product/:id" element={<ProductDetails />} />
         <Route path="/admin/edit/:id" element={<EditAdmin />} />

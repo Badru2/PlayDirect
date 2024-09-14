@@ -9,6 +9,7 @@ import ProductCategory from "../../models/ProductCategory.js";
 import User from "../../models/User.js";
 import ProductGenre from "../../models/ProductGenre.js";
 import ProductUpdateHistory from "../../models/ProductUpdateHistory.js";
+import { Op } from "sequelize";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -292,5 +293,25 @@ export const getRelatedProducts = async (req, res) => {
     res.json(relatedProducts);
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch related products" });
+  }
+};
+
+export const getProductByName = async (req, res) => {
+  const { productName } = req.query;
+
+  if (!productName) {
+    return res.status(400).json({ error: "Product name is required" });
+  }
+
+  try {
+    const products = await Product.findAll({
+      where: {
+        name: { [Op.iLike]: `%${productName}%` }, // Matching the product name
+      },
+    });
+    res.json(products);
+  } catch (error) {
+    console.error("Error fetching products:", error.message);
+    res.status(500).json({ error: "Server error" });
   }
 };

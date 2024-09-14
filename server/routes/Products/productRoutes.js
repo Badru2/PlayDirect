@@ -7,10 +7,12 @@ import {
   getRelatedProducts,
   updateProduct,
   getHistoryProduct,
+  getProductByName,
 } from "../../controllers/Products/productController.js";
 
 const router = express.Router();
 
+router.get("/search", getProductByName);
 router.post("/create", createProducts);
 router.get("/show", getProducts);
 router.get("/show/history", getHistoryProduct);

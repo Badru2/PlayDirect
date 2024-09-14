@@ -71,34 +71,19 @@ const AdminPage = () => {
       <div className="w-1/5">
         <SuperAdminNavigation />
       </div>
-      <div className="w-4/5 p-5">
-        {isModalOpen && (
-          <dialog open className="modal">
-            <div className="modal-box w-11/12 max-w-5xl bg-white">
-              <form method="dialog">
-                <button
-                  className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
-                  onClick={() => setIsModalOpen(false)}
-                >
-                  ✕
-                </button>
-              </form>
-              <CreateAdmin
-                username={username}
-                setUsername={setUsername}
-                email={email}
-                setEmail={setEmail}
-                password={password}
-                setPassword={setPassword}
-                handleSubmit={handleSubmit}
-              />
-            </div>
-          </dialog>
-        )}
-        <button className="btn" onClick={() => setIsModalOpen(true)}>
-          Add Admin
-        </button>
-        {error && <p className="text-red-500">{error}</p>} {/* Display error */}
+      <div className="w-4/5 p-5 space-y-3">
+        <div className="shadow-md">
+          <CreateAdmin
+            username={username}
+            setUsername={setUsername}
+            email={email}
+            setEmail={setEmail}
+            password={password}
+            setPassword={setPassword}
+            handleSubmit={handleSubmit}
+          />
+        </div>
+
         <div>
           <GetAdmins admins={admins} deleteAdmin={deleteAdmin} />
         </div>

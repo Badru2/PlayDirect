@@ -24,6 +24,7 @@ import cartRoute from "./routes/cartRoute.js";
 import transactionRoutes from "./routes/transactionRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import wishlistRoutes from "./routes/wishlistRoutes.js";
+import carouselRoutes from "./routes/carouselRoutes.js";
 
 import authenticateToken from "./middleware/authenticateToken.js";
 
@@ -66,6 +67,7 @@ app.use("/api", authRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/profile", profileRoutes);
+app.use("/api/carousel", carouselRoutes);
 
 // products routes
 app.use("/api/product", productRoutes);
